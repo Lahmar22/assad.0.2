@@ -28,7 +28,8 @@ class Animal
     public function getAll()
     {
         $db = Database::connect();
-        $allAnimal = "SELECT * FROM animaux ";
+        $allAnimal = "SELECT animaux.id, animaux.nomAnimal, animaux.espèce, animaux.alimentation, animaux.image, animaux.paysorigine, animaux.descriptioncourte, habitats.nomHabitat 
+        FROM animaux INNER JOIN habitats ON animaux.id_habitat = habitats.id_habitat";
         $stmt = $db->prepare($allAnimal);
         $stmt->execute();
         return $stmt->fetchAll();
