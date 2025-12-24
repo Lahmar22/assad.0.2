@@ -1,11 +1,21 @@
 <?php
 
-// session_start();
+session_start();
 
 // if (!isset($_SESSION['id_admin'])) {
 //     header("Location: ../index.php");
 //     exit();
 // }
+
+require_once '../../Models/animal.php';    
+require_once '../../Models/admin.php'; 
+
+$admin = new Admin();
+$users = $admin->getAllUser();
+
+
+$animal = new Animal();
+$animals = $animal->getAll();
 
 ?>
 
@@ -110,9 +120,7 @@
                     <select name="filterPaysOrigin"
                         class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500">
                         <option value="">Tout</option>
-                        <?php while ($row = $resultAnimalBypayes->fetch_assoc()) { ?>
-                            <option value="<?= $row['paysorigine'] ?>"><?= $row['paysorigine'] ?></option>
-                        <?php } ?>
+                        
                     </select>
                 </div>
 
@@ -124,9 +132,7 @@
                     <select name="filter_habitat"
                         class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500">
                         <option value="">Tout</option>
-                        <?php while ($row = $resultAnimalByHabitat->fetch_assoc()) { ?>
-                            <option value="<?= $row['nomHabitat'] ?>"><?= $row['nomHabitat'] ?></option>
-                        <?php } ?>
+                        
                     </select>
                 </div>
 
@@ -162,31 +168,31 @@
 
                     <!-- Table Body -->
                     <tbody class="divide-y divide-gray-200">
-                        <?php while ($row = $result->fetch_assoc()) { ?>
+                        <?php foreach($users as $u) { ?>
                             <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4 text-sm text-gray-700"><?= $row["id_user"] ?></td>
-                                <td class="px-6 py-4 text-sm text-gray-700"><?= $row["nom"] ?></td>
-                                <td class="px-6 py-4 text-sm text-gray-700"><?= $row["prenom"] ?></td>
-                                <td class="px-6 py-4 text-sm text-gray-700"><?= $row["email"] ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $u["id_user"] ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $u["nom"] ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $u["prenom"] ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $u["email"] ?></td>
                                 <td class="px-6 py-4 text-sm">
                                     <span class="px-3 py-1 rounded-full text-xs font-medium 
-                                <?= $row["role"] === 'guid' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600' ?>">
-                                        <?= $row["role"] ?>
+                                <?= $u["role"] === 'guid' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600' ?>">
+                                        <?= $u["role"] ?>
                                     </span>
                                 </td>
 
                                 <td class="px-6 py-4 text-sm text-gray-700">
                                     <form action="../controller/update_status.php" method="POST">
-                                        <input type="hidden" name="id_user" value="<?= $row['id_user'] ?>">
+                                        <input type="hidden" name="id_user" value="<?= $u['id_user'] ?>">
 
                                         <select name="statuse"
                                             onchange="this.form.submit()"
-                                            class="px-3 py-1 rounded-md text-sm font-medium <?= $row['statuse'] === 'Activer' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
+                                            class="px-3 py-1 rounded-md text-sm font-medium <?= $u['statuse'] === 'Activer' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
 
-                                            <option value="Activer" <?= $row['statuse'] === 'Activer' ? 'selected' : '' ?>>
+                                            <option value="Activer" <?= $u['statuse'] === 'Activer' ? 'selected' : '' ?>>
                                                 Activer
                                             </option>
-                                            <option value="Désactiver" <?= $row['statuse'] === 'Désactiver' ? 'selected' : '' ?>>
+                                            <option value="Désactiver" <?= $u['statuse'] === 'Désactiver' ? 'selected' : '' ?>>
                                                 Désactiver
                                             </option>
                                         </select>
@@ -195,7 +201,7 @@
                                 <td class="px-6 py-4 text-center">
                                     <form action="../controller/delete.php" method="POST"
                                         onsubmit="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?');">
-                                        <input type="hidden" name="id" value="<?= $row["id_user"] ?>">
+                                        <input type="hidden" name="id" value="<?= $u["id_user"] ?>">
                                         <button
                                             type="submit"
                                             class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
