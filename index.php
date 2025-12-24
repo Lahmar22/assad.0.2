@@ -29,7 +29,7 @@
             </div>
 
             <!-- Form -->
-            <form action="controller/login.php" method="POST" class="space-y-5">
+            <form action="controllers/loginController.php" method="POST" class="space-y-5">
                 <div>
                     <label for="email" class="block text-gray-700 font-medium mb-2">Email Address</label>
                     <input type="email" name="email" placeholder="you@example.com"
