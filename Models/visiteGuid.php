@@ -1,4 +1,5 @@
 <?php
+require_once 'database.php';
 class VisitesGuides
 {
 
@@ -11,19 +12,26 @@ class VisitesGuides
     private $duree;
     private $prix;  
 
-    public function __construct($id, $titre, $dateheure, $langue, $capacite_max, $statut, $duree, $prix)
+    public function __construct($id = null, $titre = null, $dateheure = null, $langue = null, $capacite_max = null, $statut = null, $duree = null, $prix = null)
     {
         $this->id= $id;
         $this->titre= $titre;
         $this->dateheure= $dateheure;
         $this->langue= $langue;
         $this->capacite_max= $capacite_max;
-        $this->id= $id;
-        $this->id= $id;
-        $this->id= $id;
-        $this->id= $id;
-        
+        $this->statut= $statut;
+        $this->duree= $duree;
+        $this->prix= $prix;
 
+    }
+
+    public function getAllVisitesGuides()
+    {
+        $db = Database::connect();
+        $allVisiteGuides = "SELECT id, titre, dateheure, langue, capacite_max, statut, duree, prix FROM visitesguidees";
+        $stmt = $db->prepare($allVisiteGuides);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
     public function getId()
