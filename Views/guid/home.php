@@ -1,14 +1,18 @@
 <?php
 session_start();
-require_once '../../Models/animal.php';   
+require_once '../../Models/animal.php';
+require_once '../../Models/visiteGuid.php';
 
-// if (!isset($_SESSION['user_idGuid'])) {
-//     header("Location: ../index.php");
-//     exit();
-// }
+if (!isset($_SESSION['id_user'])) {
+    header("Location: ../../index.php");
+    exit();
+}
 
 $animal = new Animal();
-$animals = $animal->getAll();
+$animals = $animal->getAllAnimaux();
+
+$visiteGuid = new VisitesGuides();
+$visiteGuides = $visiteGuid->getAllVisitesGuides();
 
 ?>
 
@@ -45,7 +49,7 @@ $animals = $animal->getAll();
             <div class="flex justify-center items-center gap-4">
                 <!-- Logo -->
                 <div class="flex-shrink-0">
-                    <img src="../images/assad.png" alt="Logo"
+                    <img src="../../images/assad.png" alt="Logo"
                         class="w-20 h-20 object-contain rounded-full border-4 border-white shadow-md">
                 </div>
 
@@ -72,7 +76,7 @@ $animals = $animal->getAll();
         </nav>
 
         <div class="p-4 border-t border-gray-700">
-            <a href="../controller/logout.php"
+            <a href="../../controllers/Logout.php"
                 class="flex items-center gap-3 px-4 py-3 rounded-lg bg-red-600 hover:bg-red-700 transition">
                 🚪 <span>Déconnexion</span>
             </a>
@@ -84,7 +88,7 @@ $animals = $animal->getAll();
         <div class="bg-white shadow-md rounded-lg p-6 mb-6 flex items-center gap-4">
             <!-- Avatar -->
             <div class="w-12 h-12 rounded-full bg-green-600 text-white flex items-center justify-center text-xl font-bold">
-                <?= strtoupper(substr($_SESSION['nomGuid'], 0, 1)) . strtoupper(substr($_SESSION['prenomGuid'], 0, 1))  ?>
+                <?= strtoupper(substr($_SESSION['nom'], 0, 1)) . strtoupper(substr($_SESSION['prenom'], 0, 1))  ?>
             </div>
 
             <!-- Texte -->
@@ -92,7 +96,7 @@ $animals = $animal->getAll();
                 <h1 class="text-xl font-semibold text-gray-800">
                     Bonjour, Mr
                     <span class="text-green-600">
-                        <?= $_SESSION['nomGuid'] ?> <?= $_SESSION['prenomGuid'] ?>
+                        <?= $_SESSION['nom'] ?> <?= $_SESSION['prenom'] ?>
                     </span>
                 </h1>
                 <p class="text-sm text-gray-500">
@@ -116,7 +120,7 @@ $animals = $animal->getAll();
                     <select name="filterPaysOrigin"
                         class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500">
                         <option value="">Tout</option>
-                        
+
                     </select>
                 </div>
 
@@ -128,7 +132,7 @@ $animals = $animal->getAll();
                     <select name="filter_habitat"
                         class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500">
                         <option value="">Tout</option>
-                        
+
                     </select>
                 </div>
 
@@ -167,7 +171,45 @@ $animals = $animal->getAll();
 
                     <!-- Table Body -->
                     <tbody class="divide-y divide-gray-200">
-                        
+                        <?php foreach($visiteGuides as $vd) { ?>
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $vd->id ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $vd->titre ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $vd->dateheure ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $vd->langue?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $vd->capacite_max ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $vd->duree ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $vd->prix ?> MAD</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">
+                                    <form action="../controller/update_statusVisiteGuid.php" method="POST">
+                                        <input type="hidden" name="id_visiteGuid" value="<?= $vd->id ?>">
+
+                                        <select name="statut"
+                                            onchange="this.form.submit()"
+                                            class="px-3 py-1 rounded-md text-sm font-medium <?= $vd->statut === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
+
+                                            <option value="Active" <?= $vd->statut === 'Active' ? 'selected' : '' ?>>
+                                                Activer
+                                            </option>
+                                            <option value="Inactive" <?= $vd->statut === 'Inactive' ? 'selected' : '' ?>>
+                                                Désactiver
+                                            </option>
+                                        </select>
+                                    </form>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <form action="../controller/deleteVisiteGuid.php" method="POST"
+                                        onsubmit="return confirm('Voulez-vous vraiment supprimer cet visite guidee ?');">
+                                        <input type="hidden" name="id" value="<?= $vd->id ?>">
+                                        <button
+                                            type="submit"
+                                            class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
+                                            Supprimer
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php } ?>
                     </tbody>
                 </table>
             </div>
@@ -187,7 +229,7 @@ $animals = $animal->getAll();
 
                         <!-- Image -->
                         <div class="relative">
-                            <img src="<?= $a['image'] ?>"
+                            <img src="<?= $a->image ?>"
                                 class="w-full h-52 object-cover group-hover:scale-110 transition duration-500">
 
                             <!-- Gradient overlay -->
@@ -195,7 +237,7 @@ $animals = $animal->getAll();
 
                             <!-- Animal name on image -->
                             <h3 class="absolute bottom-3 left-3 text-white text-xl font-bold">
-                                <?= $a['nomAnimal'] ?>
+                                <?= $a->nomAnimal ?>
                             </h3>
                         </div>
 
@@ -203,16 +245,16 @@ $animals = $animal->getAll();
                         <div class="p-5 space-y-2">
                             <div class="flex items-center justify-between">
                                 <span class="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                                    <?= $a['espèce'] ?>
+                                    <?= $a->espèce ?>
                                 </span>
                             </div>
 
                             <p class="text-gray-600 text-sm">
-                                <span class="font-semibold">Habitat :</span> <?= $a['nomHabitat'] ?>
+                                <span class="font-semibold">Habitat :</span> <?= $a->nomHabitat ?>
                             </p>
 
                             <p class="text-gray-600 text-sm">
-                                <span class="font-semibold">Pays d’origine :</span> <?= $a['paysorigine'] ?>
+                                <span class="font-semibold">Pays d’origine :</span> <?= $a->paysorigine ?>
                             </p>
                         </div>
                     </div>
