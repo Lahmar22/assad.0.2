@@ -1,4 +1,6 @@
 <?php 
+require_once 'database.php';
+
 class Habitat{
     private $id_habitat;
     private $nomHabitat;
@@ -15,6 +17,30 @@ class Habitat{
         $this->description=$description;
         $this->zonezoo=$zonezoo;
        
+    }
+
+    public function getAllHabitat()
+    {
+        $db = Database::connect();
+        $allHabitat = "SELECT id_habitat, nomHabitat, typeclimat, description, zonezoo FROM habitats";
+        $stmt = $db->prepare($allHabitat);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function addHabitat(Habitat $habitat) {
+        $Add_habitat = "INSERT INTO habitats (nomHabitat, typeclimat, description, zonezoo)
+        VALUES(?, ?, ?, ?)";
+
+        $db = Database::connect();
+        $stmt = $db->prepare($Add_habitat);
+        return $stmt->execute([
+            $habitat->getNomHabitat(),
+            $habitat->getTypeclimat(),
+            $habitat->getDescription(),
+            $habitat->getZonezoo()
+           
+        ]);
     }
 
 
