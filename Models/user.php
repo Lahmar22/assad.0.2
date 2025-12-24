@@ -28,7 +28,7 @@ class User{
     public function setFirstName($firstName){
         $this->firstName=$firstName;
     }
-
+    
     public function getEmail(){
         return $this->email;
     }
