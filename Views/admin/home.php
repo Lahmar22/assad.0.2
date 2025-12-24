@@ -2,20 +2,24 @@
 
 session_start();
 
-// if (!isset($_SESSION['id_admin'])) {
-//     header("Location: ../index.php");
-//     exit();
-// }
+if (!isset($_SESSION['id_admin'])) {
+    header("Location: ../../index.php");
+    exit();
+}
 
-require_once '../../Models/animal.php';    
-require_once '../../Models/admin.php'; 
+require_once '../../Models/animal.php';
+require_once '../../Models/admin.php';
+require_once '../../Models/habitat.php';
 
 $admin = new Admin();
 $users = $admin->getAllUser();
 
 
 $animal = new Animal();
-$animals = $animal->getAll();
+$animals = $animal->getAllAnimaux();
+
+$habitat = new Habitat();
+$habitats = $habitat->getAllHabitat();
 
 ?>
 
@@ -52,7 +56,7 @@ $animals = $animal->getAll();
             <div class="flex justify-center items-center gap-4">
                 <!-- Logo -->
                 <div class="flex-shrink-0">
-                    <img src="../images/assad.png" alt="Logo"
+                    <img src="../../images/assad.png" alt="Logo"
                         class="w-20 h-20 object-contain rounded-full border-4 border-white shadow-md">
                 </div>
 
@@ -77,7 +81,7 @@ $animals = $animal->getAll();
         </nav>
 
         <div class="p-4 border-t border-gray-700">
-            <a href="../controller/logout.php"
+            <a href="../../controllers/Logout.php"
                 class="flex items-center gap-3 px-4 py-3 rounded-lg bg-red-600 hover:bg-red-700 transition">
                 🚪 <span>Déconnexion</span>
             </a>
@@ -120,7 +124,7 @@ $animals = $animal->getAll();
                     <select name="filterPaysOrigin"
                         class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500">
                         <option value="">Tout</option>
-                        
+
                     </select>
                 </div>
 
@@ -132,7 +136,7 @@ $animals = $animal->getAll();
                     <select name="filter_habitat"
                         class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500">
                         <option value="">Tout</option>
-                        
+
                     </select>
                 </div>
 
@@ -168,7 +172,7 @@ $animals = $animal->getAll();
 
                     <!-- Table Body -->
                     <tbody class="divide-y divide-gray-200">
-                        <?php foreach($users as $u) { ?>
+                        <?php foreach ($users as $u) { ?>
                             <tr class="hover:bg-gray-50 transition">
                                 <td class="px-6 py-4 text-sm text-gray-700"><?= $u->id_user ?></td>
                                 <td class="px-6 py-4 text-sm text-gray-700"><?= $u->nom ?></td>
@@ -235,19 +239,19 @@ $animals = $animal->getAll();
 
                     <!-- Table Body -->
                     <tbody class="divide-y divide-gray-200">
-                        <?php while ($row = $resultHbitat->fetch_assoc()) { ?>
+                        <?php foreach ($habitats as $h) { ?>
                             <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4 text-sm text-gray-700"><?= $row["id_habitat"] ?></td>
-                                <td class="px-6 py-4 text-sm text-gray-700"><?= $row["nomHabitat"] ?></td>
-                                <td class="px-6 py-4 text-sm text-gray-700"><?= $row["typeclimat"] ?></td>
-                                <td class="px-6 py-4 text-sm text-gray-700"><?= $row["description"] ?></td>
-                                <td class="px-6 py-4 text-sm text-gray-700"><?= $row["zonezoo"] ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $h->id_habitat ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $h->nomHabitat ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $h->typeclimat ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $h->description ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $h->zonezoo ?></td>
 
 
                                 <td class="flex gap-3 px-6 py-4 text-center">
                                     <form action="../controller/deleteHabitat.php" method="POST"
                                         onsubmit="return confirm('Voulez-vous vraiment supprimer cet habitat ?');">
-                                        <input type="hidden" name="id" value="<?= $row["id_habitat"] ?>">
+                                        <input type="hidden" name="id" value="<?= $h->id_habitat ?>">
                                         <button
                                             type="submit"
                                             class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
@@ -257,11 +261,11 @@ $animals = $animal->getAll();
                                     <button class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
                                         type="button"
                                         onclick="openModalhabitatModify(this)"
-                                        data-id-habitat="<?= $row['id_habitat'] ?>"
-                                        data-nom-habitat="<?= $row['nomHabitat'] ?>"
-                                        data-type-climat="<?= $row['typeclimat'] ?>"
-                                        data-description="<?= $row['description'] ?>"
-                                        data-zonezoo="<?= $row['zonezoo'] ?>">
+                                        data-id-habitat="<?= $h->id_habitat ?>"
+                                        data-nom-habitat="<?= $h->nomHabitat ?>"
+                                        data-type-climat="<?= $h->typeclimat ?>"
+                                        data-description="<?= $h->description ?>"
+                                        data-zonezoo="<?= $h->zonezoo ?>">
                                         Modifier
                                     </button>
 
@@ -295,95 +299,51 @@ $animals = $animal->getAll();
 
                     <!-- Table Body -->
                     <tbody class="divide-y divide-gray-200">
-                        <?php if ($resultAnimalFiltre->num_rows > 0) {
-                            while ($row = $resultAnimalFiltre->fetch_assoc()) { ?>
-                                <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?= $row["id"] ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?= $row["nomAnimal"] ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?= $row["espèce"] ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?= $row["alimentation"] ?></td>
-                                    <td class="px-6 py-4 w-25">
-                                        <img src="<?= $row["image"] ?>"
-                                            alt="<?= $row["nomAnimal"] ?>"
-                                            class="w-16 h-16 rounded-full object-cover border border-gray-300 shadow-sm">
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?= $row["paysorigine"] ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?= $row["descriptioncourte"] ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?= $row["nomHabitat"] ?></td>
 
-                                    <td class="flex gap-3 px-6 py-4 text-center">
-                                        <form action="../controller/deleteAnimal.php" method="POST"
-                                            onsubmit="return confirm('Voulez-vous vraiment supprimer cet Animal ?');">
-                                            <input type="hidden" name="id" value="<?= $row["id"] ?>">
-                                            <button
-                                                type="submit"
-                                                class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
-                                                Supprimer
-                                            </button>
-                                        </form>
+                        <?php foreach ($animals as $a) { ?>
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $a->id ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $a->nomAnimal ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $a->espèce ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $a->alimentation ?></td>
+                                <td class="px-6 py-4 w-25">
+                                    <img src="<?= $a->image ?>"
+                                        alt="<?= $a->nomAnimal ?>"
+                                        class="w-16 h-16 rounded-full object-cover border border-gray-300 shadow-sm">
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $a->paysorigine ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $a->descriptioncourte ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $a->nomHabitat ?></td>
 
-                                        <button class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
-                                            type="button"
-                                            onclick="openModalAnimalModify(this)"
-                                            data-id="<?= $row['id'] ?>"
-                                            data-nom-animal="<?= $row['nomAnimal'] ?>"
-                                            data-espece="<?= $row['espèce'] ?>"
-                                            data-alimentation="<?= $row['alimentation'] ?>"
-                                            data-image="<?= $row['image'] ?>"
-                                            data-paysorigine="<?= $row['paysorigine'] ?>"
-                                            data-descriptioncourte="<?= $row['descriptioncourte'] ?>"
-                                            data-id-habitat="<?= $row['id_habitat'] ?>">
-                                            Modifier
+                                <td class="flex gap-3 px-6 py-4 text-center">
+                                    <form action="../controller/deleteAnimal.php" method="POST"
+                                        onsubmit="return confirm('Voulez-vous vraiment supprimer cet Animal ?');">
+                                        <input type="hidden" name="id" value="<?= $a->id ?>">
+                                        <button
+                                            type="submit"
+                                            class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
+                                            Supprimer
                                         </button>
+                                    </form>
 
-                                    </td>
-                                </tr>
-                            <?php } ?>
-                            <?php } else {
-                            while ($row = $resultAnimal->fetch_assoc()) { ?>
-                                <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?= $row["id"] ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?= $row["nomAnimal"] ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?= $row["espèce"] ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?= $row["alimentation"] ?></td>
-                                    <td class="px-6 py-4 w-25">
-                                        <img src="<?= $row["image"] ?>"
-                                            alt="<?= $row["nomAnimal"] ?>"
-                                            class="w-16 h-16 rounded-full object-cover border border-gray-300 shadow-sm">
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?= $row["paysorigine"] ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?= $row["descriptioncourte"] ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?= $row["nomHabitat"] ?></td>
+                                    <button class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
+                                        type="button"
+                                        onclick="openModalAnimalModify(this)"
+                                        data-id="<?= $a->id ?>"
+                                        data-nom-animal="<?= $a->nomAnimal ?>"
+                                        data-espece="<?= $a->espèce  ?>"
+                                        data-alimentation="<?= $a->alimentation ?>"
+                                        data-image="<?= $a->image ?>"
+                                        data-paysorigine="<?= $a->paysorigine ?>"
+                                        data-descriptioncourte="<?= $a->descriptioncourte ?>"
+                                        data-id-habitat="<?= $a->nomHabitat ?>">
+                                        Modifier
+                                    </button>
 
-                                    <td class="flex gap-3 px-6 py-4 text-center">
-                                        <form action="../controller/deleteAnimal.php" method="POST"
-                                            onsubmit="return confirm('Voulez-vous vraiment supprimer cet Animal ?');">
-                                            <input type="hidden" name="id" value="<?= $row["id"] ?>">
-                                            <button
-                                                type="submit"
-                                                class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
-                                                Supprimer
-                                            </button>
-                                        </form>
-
-                                        <button class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
-                                            type="button"
-                                            onclick="openModalAnimalModify(this)"
-                                            data-id="<?= $row['id'] ?>"
-                                            data-nom-animal="<?= $row['nomAnimal'] ?>"
-                                            data-espece="<?= $row['espèce'] ?>"
-                                            data-alimentation="<?= $row['alimentation'] ?>"
-                                            data-image="<?= $row['image'] ?>"
-                                            data-paysorigine="<?= $row['paysorigine'] ?>"
-                                            data-descriptioncourte="<?= $row['descriptioncourte'] ?>"
-                                            data-id-habitat="<?= $row['id_habitat'] ?>">
-                                            Modifier
-                                        </button>
-
-                                    </td>
-                                </tr>
-                            <?php } ?>
+                                </td>
+                            </tr>
                         <?php } ?>
+
 
                     </tbody>
                 </table>
