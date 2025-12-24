@@ -1,11 +1,24 @@
 <?php
 session_start();
 
-require_once '../../Models/animal.php';    
+require_once '../../Models/animal.php';
+require_once '../../Models/visiteGuid.php';
+require_once '../../Models/reservations.php';
+
+if (!isset($_SESSION['id_user'])) {
+    header("Location: ../../index.php");
+    exit();
+}
 
 
 $animal = new Animal();
-$animals = $animal->getAll();
+$animals = $animal->getAllAnimaux();
+
+$visiteGuid = new VisitesGuides();
+$visiteGuides = $visiteGuid->getAllVisitesGuides();
+
+$reservation = new Reservation();
+$reservations = $reservation->getAllReservation($_SESSION['id_user']);
 
 // if (!isset($_SESSION['user_idVisiteur'])) {
 //     header("Location: ../../index.php");
@@ -75,7 +88,7 @@ $animals = $animal->getAll();
             <div class="flex justify-center items-center gap-4">
                 <!-- Logo -->
                 <div class="flex-shrink-0">
-                    <img src="../images/assad.png" alt="Logo"
+                    <img src="../../images/assad.png" alt="Logo"
                         class="w-20 h-20 object-contain rounded-full border-4 border-white shadow-md">
                 </div>
 
@@ -104,7 +117,7 @@ $animals = $animal->getAll();
         </nav>
 
         <div class="p-4 border-t border-gray-700">
-            <a href="../controller/logout.php"
+            <a href="../../controllers/Logout.php"
                 class="flex items-center gap-3 px-4 py-3 rounded-lg bg-red-600 hover:bg-red-700 transition">
                 🚪 <span>Déconnexion</span>
             </a>
@@ -116,7 +129,7 @@ $animals = $animal->getAll();
         <div class="bg-white shadow-md rounded-lg p-6 mb-6 flex items-center gap-4">
             <!-- Avatar -->
             <div class="w-12 h-12 rounded-full bg-green-600 text-white flex items-center justify-center text-xl font-bold">
-                
+                <?= strtoupper(substr($_SESSION['nom'], 0, 1)) . strtoupper(substr($_SESSION['prenom'], 0, 1))  ?>
             </div>
 
             <!-- Texte -->
@@ -124,7 +137,7 @@ $animals = $animal->getAll();
                 <h1 class="text-xl font-semibold text-gray-800">
                     Bonjour, Mr
                     <span class="text-green-600">
-                        
+                        <?= $_SESSION['nom'] ?> <?= $_SESSION['prenom'] ?>
                     </span>
                 </h1>
                 <p class="text-sm text-gray-500">
@@ -189,15 +202,84 @@ $animals = $animal->getAll();
         <section class="mb-12">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
 
+                <?php foreach ($visiteGuides as $vd) { ?>
+                    <div class="max-w-md rounded-2xl overflow-hidden shadow-lg bg-white hover:shadow-xl transition">
 
+                        <!-- Header -->
+                        <div class="bg-gradient-to-r from-blue-600 to-green-300 p-4 text-white">
+                            <h3 class="text-xl font-bold"><?= $vd->titre ?></h3>
+                            <p class="text-sm opacity-90">Une expérience unique</p>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="p-5 space-y-2 text-gray-700">
+
+                            <div class="flex justify-between">
+                                <span>📅 Date</span>
+                                <span class="font-semibold"><?= $vd->date_seulement ?></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>⏰ Début</span>
+                                <span class="font-semibold"><?= $vd->time_seulement ?></span>
+                            </div>
+
+                            <div class="flex justify-between">
+                                <span>⏳ Durée</span>
+                                <span class="font-semibold"><?= $vd->duree ?></span>
+                            </div>
+
+                            <div class="flex justify-between">
+                                <span>🌍 Langue</span>
+                                <span class="font-semibold"><?= $vd->langue ?></span>
+                            </div>
+
+                            <div class="flex justify-between">
+                                <span>👥 Places restantes</span>
+                                <span class="font-semibold text-green-600"><?= $vd->capacite_max ?></span>
+                            </div>
+
+                            <hr>
+
+                            <!-- Prix -->
+                            <div class="flex justify-between items-center">
+                                <span class="text-lg font-bold text-green-600"><?= $vd->prix ?></span>
+                                <span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                                    Disponible
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="flex gap-4 p-4">
+                            <!-- Bouton Réserver -->
+                            <button type="button"
+                                onclick="openModalReserver(this)"
+                                data-id="<?= $vd->id ?>"
+                                class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-3 rounded-2xl shadow-md hover:from-white hover:to-white hover:text-green-600 hover:scale-105 transform transition-all duration-300">
+                                Réserver maintenant
+                            </button>
+
+                            <!-- Bouton Voir Parcour -->
+                            <button type="button"
+                                onclick="openModalParcour(this)"
+                                data-id="<?= $vd->id ?>"
+                                class="flex-1 border-2 border-green-600 text-green-600 font-semibold py-3 rounded-2xl hover:bg-green-600 hover:text-white hover:scale-105 transform transition-all duration-300">
+                                Voir Parcour
+                            </button>
+                        </div>
+
+                    </div>
+
+                <?php } ?>
             </div>
 
 
         </section>
 
-        
 
-        
+
+
 
         <section class="py-10">
             <h1 class="text-4xl font-extrabold text-gray-800 mb-10 text-center">
@@ -211,7 +293,7 @@ $animals = $animal->getAll();
 
                         <!-- Image -->
                         <div class="relative">
-                            <img src="<?= $a['image'] ?>"
+                            <img src="<?= $a->image ?>"
                                 class="w-full h-52 object-cover group-hover:scale-110 transition duration-500">
 
                             <!-- Gradient overlay -->
@@ -219,7 +301,7 @@ $animals = $animal->getAll();
 
                             <!-- Animal name on image -->
                             <h3 class="absolute bottom-3 left-3 text-white text-xl font-bold">
-                                <?= $a['nomAnimal'] ?>
+                                <?= $a->nomAnimal ?>
                             </h3>
                         </div>
 
@@ -227,16 +309,16 @@ $animals = $animal->getAll();
                         <div class="p-5 space-y-2">
                             <div class="flex items-center justify-between">
                                 <span class="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                                    <?= $a['espèce'] ?>
+                                    <?= $a->espèce ?>
                                 </span>
                             </div>
 
                             <p class="text-gray-600 text-sm">
-                                <span class="font-semibold">Habitat :</span> <?= $a['nomHabitat'] ?>
+                                <span class="font-semibold">Habitat :</span> <?= $a->nomHabitat ?>
                             </p>
 
                             <p class="text-gray-600 text-sm">
-                                <span class="font-semibold">Pays d’origine :</span> <?= $a['paysorigine'] ?>
+                                <span class="font-semibold">Pays d’origine :</span> <?= $a->paysorigine ?>
                             </p>
                         </div>
                     </div>
@@ -322,71 +404,68 @@ $animals = $animal->getAll();
                     </thead>
 
                     <tbody class="divide-y divide-gray-200 bg-white">
-                        <?php if ($resultMesReservation->num_rows > 0) {
-                            while ($row = $resultMesReservation->fetch_assoc()) { ?>
-                                <tr class="hover:bg-gray-50 transition">
+                        <?php foreach ($reservations as $r) { ?>
+                            <tr class="hover:bg-gray-50 transition">
 
-                                    <td class="px-4 py-3 font-medium">
-                                        <?= htmlspecialchars($row["titre"]) ?>
-                                    </td>
+                                <td class="px-4 py-3 font-medium">
+                                    <?= htmlspecialchars($r->titre) ?>
+                                </td>
 
-                                    <td class="px-4 py-3">
-                                        <?= htmlspecialchars($row["nom"] . ' ' . $row["prenom"]) ?>
-                                    </td>
+                                <td class="px-4 py-3">
+                                    <?= htmlspecialchars($r->nom . ' ' . $r->prenom) ?>
+                                </td>
 
-                                    <td class="px-4 py-3 text-center">
-                                        <?= $row["nbpersonnes"] ?>
-                                    </td>
+                                <td class="px-4 py-3 text-center">
+                                    <?= $r->nbpersonnes ?>
+                                </td>
 
-                                    <td class="px-4 py-3 text-center">
-                                        <?= $row["datereservation"] ?>
-                                    </td>
+                                <td class="px-4 py-3 text-center">
+                                    <?= $r->datereservation ?>
+                                </td>
 
-                                    <td class="px-4 py-3 text-center">
-                                        <?= $row["dateVG"] ?>
-                                    </td>
+                                <td class="px-4 py-3 text-center">
+                                    <?= $r->dateVG ?>
+                                </td>
 
-                                    <td class="px-4 py-3 text-center">
-                                        <?= $row["timeVG"] ?>
-                                    </td>
+                                <td class="px-4 py-3 text-center">
+                                    <?= $r->timeVG ?>
+                                </td>
 
-                                    <!-- Status Badge -->
-                                    <td class="px-4 py-3 text-center">
-                                        <span class="px-3 py-1 rounded-full text-xs font-semibold
-                                    <?= $row["statut"] === 'active'
+                                <!-- Status Badge -->
+                                <td class="px-4 py-3 text-center">
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold
+                                    <?= $r->statut === 'active'
                                         ? 'bg-green-100 text-green-700'
                                         : 'bg-yellow-100 text-yellow-700' ?>">
-                                            <?= ucfirst($row["statut"]) ?>
-                                        </span>
-                                    </td>
+                                        <?= ucfirst($r->statut) ?>
+                                    </span>
+                                </td>
 
-                                    <td class="px-4 py-3 text-center">
-                                        <?= $row["duree"] ?>
-                                    </td>
+                                <td class="px-4 py-3 text-center">
+                                    <?= $r->duree ?>
+                                </td>
 
-                                    <td class="px-4 py-3 text-center font-semibold text-green-600">
-                                        <?= $row["prix"] * $row["nbpersonnes"] ?> MAD
-                                    </td>
+                                <td class="px-4 py-3 text-center font-semibold text-green-600">
+                                    <?= $r->prix * $r->nbpersonnes ?> MAD
+                                </td>
 
-                                    <!-- Action -->
-                                    <td class="px-4 py-3 text-center">
-                                        <form action="../controller/annuler.php" method="POST"
-                                            onsubmit="return confirm('Voulez-vous vraiment annuler cette réservation ?');">
-                                            <input type="hidden" name="id" value="<?= $row["id"] ?>">
-                                            <input type="hidden" name="idvisite" value="<?= $row["idvisite"] ?>">
-                                            <input type="hidden" name="nbrPersonne" value="<?= $row["nbpersonnes"] ?>">
-                                            <button
-                                                type="submit"
-                                                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-semibold transition">
-                                                ❌ Annuler
-                                            </button>
-                                        </form>
-                                    </td>
+                                <!-- Action -->
+                                <td class="px-4 py-3 text-center">
+                                    <form action="../controller/annuler.php" method="POST"
+                                        onsubmit="return confirm('Voulez-vous vraiment annuler cette réservation ?');">
+                                        <input type="hidden" name="id" value="<?= $r->id ?>">
+                                        <input type="hidden" name="idvisite" value="<?= $r->idvisite ?>">
+                                        <input type="hidden" name="nbrPersonne" value="<?= $r->nbpersonnes ?>">
+                                        <button
+                                            type="submit"
+                                            class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-semibold transition">
+                                            ❌ Annuler
+                                        </button>
+                                    </form>
+                                </td>
 
-                                </tr>
-                            <?php }
-                        } else { ?>
-                            <td colspan="10" class=" text-xl px-4 py-3 text-center">🚫 Aucune réservation trouvée</td>
+                            </tr>
+
                         <?php } ?>
                     </tbody>
                 </table>
@@ -494,67 +573,7 @@ $animals = $animal->getAll();
         </div>
     </div>
 
-    <div id="modalGuidParcouru"
-        class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
-
-        <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden">
-
-            <!-- Header -->
-            <div class="flex justify-between items-center px-6 py-4 border-b bg-gray-50">
-                <h2 class="text-xl font-bold text-gray-800">
-                    🗺️ Visites guidées déjà parcourues
-                </h2>
-                <button onclick="closeModalGuidParcouru()"
-                    class="text-gray-400 hover:text-gray-600 text-2xl font-bold">
-                    &times;
-                </button>
-            </div>
-
-            <!-- Body -->
-            <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
-
-                <!-- ONE VISITE CARD -->
-                <?php while ($row = $resultParcouru->fetch_assoc()) { ?>
-                    <div class="border rounded-xl p-5 shadow-sm hover:shadow-md transition">
-
-                        <div class="flex justify-between items-center mb-2">
-                            <h3 class="text-lg font-semibold text-gray-800">
-                                <?= $row['titre'] ?>
-                            </h3>
-                            <span class="text-sm text-gray-500">
-                                📅 <?= $row['dateheure'] ?>
-                            </span>
-
-                        </div>
-                        <!-- Comment form -->
-                        <form action="../controller/addComment.php" method="POST" class="mt-4">
-                            <input type="hidden" name="id_visite" value="<?= $row['visite_id'] ?>">
-                            <input type="hidden" name="id_user" value="<?= $row['id_user'] ?>">
-
-                            <textarea name="commentaire" rows="3"
-                                class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-green-500 focus:outline-none"
-                                placeholder="Ajoutez votre commentaire sur cette visite..."></textarea>
-
-                            <button type="submit"
-                                class="mt-3 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition">
-                                Ajouter commentaire
-                            </button>
-                        </form>
-                    </div>
-                <?php } ?>
-
-            </div>
-
-            <!-- Footer -->
-            <div class="px-6 py-4 border-t bg-gray-50 text-right">
-                <button onclick="closeModalGuidParcouru()"
-                    class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg transition">
-                    Fermer
-                </button>
-            </div>
-        </div>
-    </div>
-
+    
 
     <script>
         function openModalReserver(button) {
