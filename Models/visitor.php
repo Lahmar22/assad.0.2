@@ -1,5 +1,5 @@
 <?php 
-require_once 'visitrGuid.php';
+require_once 'reservations.php';
 require_once 'database.php';
 
 class Visitor extends User
@@ -12,22 +12,27 @@ class Visitor extends User
 
     }
 
-    public function reserveVisitGuid(VisitesGuides $visitesGuides){
-        $reserveVisite = "INSERT INTO visitesguidees (titre, dateheure, langue, capacite_max, statut, duree, prix)
-        VALUES(?, ?, ?, ?, ?, ?, ? )";
+    public function reserveVisitGuid(Reservation $reservation){
+        $reserveVisite = "INSERT INTO reservations (idvisite, idutilisateur, nbpersonnes, datereservation) VALUES(?, ?, ?, ?)";
 
         $db = Database::connect();
         $stmt = $db->prepare($reserveVisite);
         return $stmt->execute([
-            $visitesGuides->getTitre(),
-            $visitesGuides->getDateheure(),
-            $visitesGuides->getLangue(),
-            $visitesGuides->getCapaciteMax(),
-            $visitesGuides->getStatut(),
-            $visitesGuides->getDuree(),
-            $visitesGuides->getPrix()
+            $reservation->getIdVisiteGuid(),
+            $reservation->getIdUser(),
+            $reservation->getNbrPersonne(),
+            $reservation->getDateReservation()
+           
         ]);
 
+    }
+
+    public function getRole(){
+        return $this->role;
+    }
+
+    public function setRole($role){
+        $this->role = $role;
     }
 
 
