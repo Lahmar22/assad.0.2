@@ -1,17 +1,24 @@
 <?php
-
+require_once 'user.php';
 require_once 'animal.php';
 require_once 'habitat.php';
 require_once 'database.php';
 
-class Admin extends user
+class Admin extends User
 {
-    public function __construct($name, $firstName, $email, $password, $statut)
+    public function __construct($name = null, $firstName = null, $email = null, $password = null, $statut = null)
     {
         parent::__construct($name, $firstName, $email, $password, $statut);
     }
 
-
+    public function getAllUser()
+    {
+        $db = Database::connect();
+        $allUser = "SELECT id_user, nom, prenom, email, role, statuse FROM utilisateur";
+        $stmt = $db->prepare($allUser);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 
     public function addAnimal(Animal $animal)
     {
