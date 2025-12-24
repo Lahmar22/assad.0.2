@@ -25,15 +25,16 @@ class Animal
         $this->idHabitat= $idHabitat;
     }
 
-    public function getAll()
+    public function getAllAnimaux()
     {
         $db = Database::connect();
         $allAnimal = "SELECT animaux.id, animaux.nomAnimal, animaux.espèce, animaux.alimentation, animaux.image, animaux.paysorigine, animaux.descriptioncourte, habitats.nomHabitat 
         FROM animaux INNER JOIN habitats ON animaux.id_habitat = habitats.id_habitat";
         $stmt = $db->prepare($allAnimal);
         $stmt->execute();
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+
 
     public function getId()
     {
