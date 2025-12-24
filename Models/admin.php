@@ -17,7 +17,7 @@ class Admin extends User
         $allUser = "SELECT id_user, nom, prenom, email, role, statuse FROM utilisateur";
         $stmt = $db->prepare($allUser);
         $stmt->execute();
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
     public function addAnimal(Animal $animal)
