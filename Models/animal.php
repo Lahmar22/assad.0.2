@@ -3,7 +3,6 @@ require_once 'database.php';
 
 class Animal
 {
-    private $id;
     private $nomAnimal;
     private $espece;
     private $alimentation;
@@ -13,9 +12,8 @@ class Animal
     private $idHabitat;
 
 
-    public function __construct($id = null, $nomAnimal = null, $espece = null, $alimentation = null, $image = null, $paysorigine = null, $descriptioncourte = null, $idHabitat = null)
-    {
-        $this->id = $id;
+    public function __construct($nomAnimal = null, $espece = null, $alimentation = null, $image = null, $paysorigine = null, $descriptioncourte = null, $idHabitat = null)
+    {;
         $this->nomAnimal = $nomAnimal;
         $this->espece = $espece;
         $this->alimentation = $alimentation;
@@ -35,15 +33,56 @@ class Animal
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
+    public function addAnimal(Animal $animal)
+    {
 
-    public function getId()
-    {
-        return $this->id;
+        $sqlAnimal = "INSERT INTO animaux (nomAnimal, espèce, alimentation, image, paysorigine, descriptioncourte, id_habitat)
+                VALUES(?, ?, ?, ?, ?, ?, ?)";
+
+        $db = Database::connect();
+        $stmt = $db->prepare($sqlAnimal);
+
+        return $stmt->execute([
+            $animal->getNomAnimal(),
+            $animal->getEspece(),
+            $animal->getAlimentation(),
+            $animal->getImage(),
+            $animal->getPaysOrigine(),
+            $animal->getDescriptionCourte(),
+            $animal->getIdHabitat()
+        ]);
     }
-    public function setId($id)
+
+    public function updateAnimal(Animal $animal, $id)
     {
-        $this->id = $id;
+        $sqlupdateAnimal = "UPDATE animaux SET nomAnimal = :nom, espèce = :espece, alimentation = :alimentation, image = :image, paysorigine = :paysorigine, descriptioncourte = :descriptioncourte, id_habitat = :habitat 
+            WHERE id = $id";
+
+        $db = Database::connect();
+        $stmt = $db->prepare($sqlupdateAnimal);
+
+        return $stmt->execute([
+            'nom' => $animal->getNomAnimal(),
+            'espece' => $animal->getEspece(),
+            'alimentation' => $animal->getAlimentation(),
+            'image' => $animal->getImage(),
+            'paysorigine' => $animal->getPaysorigine(),
+            'descriptioncourte' => $animal->getDescriptioncourte(),
+            'habitat' => $animal->getIdHabitat()
+        ]);
     }
+
+    public function removeAnimal($id)
+    {
+        $delete_animal = "DELETE FROM animaux WHERE id = :id";
+
+        $db = Database::connect();
+        $stmt = $db->prepare($delete_animal);
+        return $stmt->execute(['id' => $id]);
+    }
+
+    
+
 
     public function getNomAnimal()
     {
