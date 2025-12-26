@@ -10,12 +10,16 @@ if (!isset($_SESSION['id_user'])) {
     exit();
 }
 
+$nameVisite_guid = $_POST["nameVisite_guid"];
+
 
 $animal = new Animal();
 $animals = $animal->getAllAnimaux();
 
+
 $visiteGuid = new VisitesGuides();
 $visiteGuides = $visiteGuid->getAllVisitesGuides();
+$visiteGuidRecherche = $visiteGuid->getVisitesGuidesRecherche($nameVisite_guid);
 
 $reservation = new Reservations();
 $reservations = $reservation->getAllReservation($_SESSION['id_user']);
@@ -189,8 +193,8 @@ $reservations = $reservation->getAllReservation($_SESSION['id_user']);
 
         <section class="mb-12">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-
-                <?php foreach ($visiteGuides as $vd) { ?>
+                <?php if(count($visiteGuidRecherche) > 0){
+                    foreach ($visiteGuidRecherche as $vd) { ?>
                     <div class="max-w-md rounded-2xl overflow-hidden shadow-lg bg-white hover:shadow-xl transition">
 
                         <!-- Header -->
@@ -259,7 +263,80 @@ $reservations = $reservation->getAllReservation($_SESSION['id_user']);
 
                     </div>
 
-                <?php } ?>
+                <?php }
+
+                } else{ ?>
+                    <?php foreach ($visiteGuides as $vd) { ?>
+                        <div class="max-w-md rounded-2xl overflow-hidden shadow-lg bg-white hover:shadow-xl transition">
+
+                        <!-- Header -->
+                        <div class="bg-gradient-to-r from-blue-600 to-green-300 p-4 text-white">
+                        <h3 class="text-xl font-bold"><?= $vd->titre ?></h3>
+                        <p class="text-sm opacity-90">Une expérience unique</p>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="p-5 space-y-2 text-gray-700">
+
+                        <div class="flex justify-between">
+                        <span>📅 Date</span>
+                        <span class="font-semibold"><?= $vd->date_seulement ?></span>
+                        </div>
+                        <div class="flex justify-between">
+                        <span>⏰ Début</span>
+                        <span class="font-semibold"><?= $vd->time_seulement ?></span>
+                        </div>
+
+                        <div class="flex justify-between">
+                        <span>⏳ Durée</span>
+                        <span class="font-semibold"><?= $vd->duree ?></span>
+                        </div>
+
+                        <div class="flex justify-between">
+                        <span>🌍 Langue</span>
+                        <span class="font-semibold"><?= $vd->langue ?></span>
+                        </div>
+
+                        <div class="flex justify-between">
+                        <span>👥 Places restantes</span>
+                        <span class="font-semibold text-green-600"><?= $vd->capacite_max ?></span>
+                        </div>
+
+                        <hr>
+
+                        <!-- Prix -->
+                        <div class="flex justify-between items-center">
+                        <span class="text-lg font-bold text-green-600"><?= $vd->prix ?></span>
+                        <span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                        Disponible
+                        </span>
+                        </div>
+
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="flex gap-4 p-4">
+                        <!-- Bouton Réserver -->
+                        <button type="button"
+                        onclick="openModalReserver(this)"
+                        data-id="<?= $vd->id ?>"
+                        class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-3 rounded-2xl shadow-md hover:from-white hover:to-white hover:text-green-600 hover:scale-105 transform transition-all duration-300">
+                        Réserver maintenant
+                        </button>
+
+                        <!-- Bouton Voir Parcour -->
+                        <button type="button"
+                        onclick="openModalParcour(this)"
+                        data-id="<?= $vd->id ?>"
+                        class="flex-1 border-2 border-green-600 text-green-600 font-semibold py-3 rounded-2xl hover:bg-green-600 hover:text-white hover:scale-105 transform transition-all duration-300">
+                        Voir Parcour
+                        </button>
+                        </div>
+
+                        </div>
+
+                    <?php } ?>
+                    <?php } ?>
             </div>
 
 
