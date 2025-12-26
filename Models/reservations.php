@@ -1,15 +1,13 @@
 <?php 
 require_once 'database.php';
-class Reservation
+class Reservations
 {
-    private $id_reserve;
     private $id_visiteGuid;
     private $id_user;
     private $nbrPersonne;
     private $dateReservation;
 
-    public function __construct($id_reserve = null, $id_visiteGuid = null, $id_user = null, $nbrPersonne = null, $dateReservation = null) {
-        $this->id_reserve = $id_reserve;
+    public function __construct($id_visiteGuid = null, $id_user = null, $nbrPersonne = null, $dateReservation = null) {
         $this->id_visiteGuid = $id_visiteGuid;
         $this->id_user = $id_user;
         $this->nbrPersonne = $nbrPersonne;
@@ -27,16 +25,32 @@ class Reservation
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
-
-    public function getIdReserve()
+    public function reservationVisiteGuid(Reservations $reservation)
     {
-        return $this->id_reserve;
+
+        $sqlReservation = "INSERT INTO reservations (idvisite, idutilisateur, nbpersonnes, datereservation) VALUES (?, ?, ?, ?)";
+
+        $db = Database::connect();
+        $stmt = $db->prepare($sqlReservation);
+
+        return $stmt->execute([
+            $reservation->getIdVisiteGuid(),
+            $reservation->getIdUser(),
+            $reservation->getNbrPersonne(),
+            $reservation->getDateReservation()
+           
+        ]);
     }
 
-    public function setIdReserve($id_reserve)
+    public function annulerReservation($id)
     {
-        $this->id_reserve = $id_reserve;
+        $db = Database::connect();
+        $annulerResv = "DELETE FROM reservations WHERE id = :id";
+
+        $stmt = $db->prepare($annulerResv);
+        return $stmt->execute(['id' => $id]);
     }
+
 
     public function getIdVisiteGuid()
     {
