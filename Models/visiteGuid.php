@@ -2,27 +2,50 @@
 require_once 'database.php';
 class VisitesGuides
 {
-
-    private $id;
     private $titre;
     private $dateheure;
     private $langue;
     private $capacite_max;
     private $statut;
     private $duree;
-    private $prix;  
+    private $prix;
 
-    public function __construct($id = null, $titre = null, $dateheure = null, $langue = null, $capacite_max = null, $statut = null, $duree = null, $prix = null)
+    public function __construct($titre = null, $dateheure = null, $langue = null, $capacite_max = null, $statut = null, $duree = null, $prix = null)
     {
-        $this->id= $id;
-        $this->titre= $titre;
-        $this->dateheure= $dateheure;
-        $this->langue= $langue;
-        $this->capacite_max= $capacite_max;
-        $this->statut= $statut;
-        $this->duree= $duree;
-        $this->prix= $prix;
+        $this->titre = $titre;
+        $this->dateheure = $dateheure;
+        $this->langue = $langue;
+        $this->capacite_max = $capacite_max;
+        $this->statut = $statut;
+        $this->duree = $duree;
+        $this->prix = $prix;
+    }
 
+    public function addVisitGuid(VisitesGuides $visitesGuide)
+    {
+
+        $sqlVisiteGuid = "INSERT INTO visitesguidees(titre, dateheure, langue, capacite_max, duree, prix) VALUES(?, ?, ?, ?, ?, ?)";
+
+        $db = Database::connect();
+        $stmt = $db->prepare($sqlVisiteGuid);
+
+        return $stmt->execute([
+            $visitesGuide->getTitre(),
+            $visitesGuide->getDateheure(),
+            $visitesGuide->getLangue(),
+            $visitesGuide->getCapaciteMax(),
+            $visitesGuide->getDuree(),
+            $visitesGuide->getPrix()
+        ]);
+    }
+
+    public function removeVisitGuid($id)
+    {
+        $db = Database::connect();
+        $delete_visitGuid = "DELETE FROM visitesguidees WHERE id = :id";
+
+        $stmt = $db->prepare($delete_visitGuid);
+        return $stmt->execute(['id' => $id]);
     }
 
     public function getAllVisitesGuides()
@@ -34,9 +57,14 @@ class VisitesGuides
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
-    public function getId()
+
+
+    public function updateStatutVisitGuid($status, $id)
     {
-        return $this->id;
+        $db = Database::connect();
+        $sqlUpdateStatut = "UPDATE visitesguidees SET statut = :status WHERE id = :id";
+        $stmt = $db->prepare($sqlUpdateStatut);
+        return $stmt->execute(['id'  => $id, 'status' => $status]);
     }
 
     public function getTitre()
@@ -75,12 +103,6 @@ class VisitesGuides
     }
 
 
-    public function setId($id)
-    {
-        $this->id = $id;
-    
-    }
-
     public function setTitre($titre)
     {
         $this->titre = $titre;
@@ -89,7 +111,6 @@ class VisitesGuides
     public function setDateheure($dateheure)
     {
         $this->dateheure = $dateheure;
-
     }
 
     public function setLangue($langue)
