@@ -67,6 +67,24 @@ class VisitesGuides
         return $stmt->execute(['id'  => $id, 'status' => $status]);
     }
 
+    public function updateCapaciteVisiteGuidResever($nbr, $id)
+    {
+        $db = Database::connect();
+        $sqlUpdateStatut = "UPDATE visitesguidees SET capacite_max = capacite_max - :nbr WHERE id = :id";
+        $stmt = $db->prepare($sqlUpdateStatut);
+        return $stmt->execute(['nbr'  => $nbr, 'id' => $id]);
+    }
+
+    public function updateCapaciteVisiteGuidAnnuler($nbr, $id)
+    {
+        $db = Database::connect();
+        $sqlUpdateStatut = "UPDATE visitesguidees SET capacite_max = capacite_max + :nbr WHERE id = :id";
+        $stmt = $db->prepare($sqlUpdateStatut);
+        return $stmt->execute(['nbr'  => $nbr, 'id' => $id]);
+    }
+
+    
+
     public function getTitre()
     {
         return $this->titre;
