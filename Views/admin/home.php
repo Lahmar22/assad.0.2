@@ -14,6 +14,21 @@ require_once '../../Models/habitat.php';
 $admin = new Admin();
 $users = $admin->getAllUser();
 
+$statistic = $admin->statisticUser();
+
+foreach ($statistic as $row) {
+    $roles[$row->role] = $row->total;
+}
+
+$guid = $roles['guid'];
+$visiteur = $roles['visiteur'];
+
+// $total = $visiteur + $guid;
+
+// if($total != 0){
+//     $visiteur_percentage = $visiteur/$total;
+// }
+
 
 $animal = new Animal();
 $animals = $animal->getAllAnimaux();
@@ -186,7 +201,7 @@ $habitats = $habitat->getAllHabitat();
                                 </td>
 
                                 <td class="px-6 py-4 text-sm text-gray-700">
-                                    <form action="../controller/update_status.php" method="POST">
+                                    <form action="../../controllers/updateStatut.php" method="POST">
                                         <input type="hidden" name="id_user" value="<?= $u->id_user ?>">
 
                                         <select name="statuse"
@@ -203,7 +218,7 @@ $habitats = $habitat->getAllHabitat();
                                     </form>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <form action="../controller/delete.php" method="POST"
+                                    <form action="../../controllers/removeUser.php" method="POST"
                                         onsubmit="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?');">
                                         <input type="hidden" name="id" value="<?= $u->id_user ?>">
                                         <button
@@ -249,7 +264,7 @@ $habitats = $habitat->getAllHabitat();
 
 
                                 <td class="flex gap-3 px-6 py-4 text-center">
-                                    <form action="../controller/deleteHabitat.php" method="POST"
+                                    <form action="../../controllers/removeHabitat.php" method="POST"
                                         onsubmit="return confirm('Voulez-vous vraiment supprimer cet habitat ?');">
                                         <input type="hidden" name="id" value="<?= $h->id_habitat ?>">
                                         <button
@@ -316,7 +331,7 @@ $habitats = $habitat->getAllHabitat();
                                 <td class="px-6 py-4 text-sm text-gray-700"><?= $a->nomHabitat ?></td>
 
                                 <td class="flex gap-3 px-6 py-4 text-center">
-                                    <form action="../controller/deleteAnimal.php" method="POST"
+                                    <form action="../../controllers/removeAnimal.php" method="POST"
                                         onsubmit="return confirm('Voulez-vous vraiment supprimer cet Animal ?');">
                                         <input type="hidden" name="id" value="<?= $a->id ?>">
                                         <button
@@ -367,7 +382,7 @@ $habitats = $habitat->getAllHabitat();
                         <div>
                             <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Visiteur</p>
                             <h4 class="text-3xl font-bold text-gray-800 mt-1">
-                                <?php echo $visiteur_count ?? 0; ?>
+                                <?php echo $visiteur ?? 0; ?>
                             </h4>
                         </div>
 
@@ -376,12 +391,12 @@ $habitats = $habitat->getAllHabitat();
                         <div class="flex items-center justify-between text-sm mb-2">
                             <span class="text-gray-600">Percentage</span>
                             <span class="font-semibold text-red-600">
-                                <?php echo number_format($visiteur_percentage, 2, ',', ' ') ?? 0; ?>%
+                                <?php echo number_format(($visiteur/($visiteur + $guid)) * 100, 2, ',', ' ') ?? 0; ?>%
                             </span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
                             <div class="bg-red-500 h-2 rounded-full transition-all duration-500"
-                                style="width: <?php echo $visiteur_percentage ?? 0; ?>%">
+                                style="width: <?php echo ($visiteur/($visiteur + $guid)) * 100 ?? 0; ?>%">
                             </div>
                         </div>
                     </div>
@@ -393,7 +408,7 @@ $habitats = $habitat->getAllHabitat();
                         <div>
                             <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Guid</p>
                             <h4 class="text-3xl font-bold text-gray-800 mt-1">
-                                <?php echo $guid_count ?? 0; ?>
+                                <?php echo $guid ?? 0; ?>
                             </h4>
                         </div>
 
@@ -402,12 +417,12 @@ $habitats = $habitat->getAllHabitat();
                         <div class="flex items-center justify-between text-sm mb-2">
                             <span class="text-gray-600">Percentage</span>
                             <span class="font-semibold text-green-600">
-                                <?php echo number_format($guid_percentage, 2, ',', ' ') ?? 0; ?>%
+                                <?php echo number_format(($guid/($visiteur + $guid)) * 100, 2, ',', ' ') ?? 0; ?>%
                             </span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
                             <div class="bg-green-500 h-2 rounded-full transition-all duration-500"
-                                style="width: <?php echo $guid_percentage ?? 0; ?>%">
+                                style="width: <?php echo ($guid/($visiteur + $guid)) * 100 ?? 0; ?>%">
                             </div>
                         </div>
                     </div>
@@ -419,18 +434,18 @@ $habitats = $habitat->getAllHabitat();
                             <div>
                                 <p class="text-sm opacity-90 font-medium">Total</p>
                                 <p class="text-3xl font-bold">
-                                    <?= $total  ?? 0; ?>
+                                    <?= $guid + $visiteur  ?? 0; ?>
                                 </p>
                             </div>
                         </div>
                         <div class="flex gap-6 text-sm">
                             <div class="text-center">
                                 <p class="opacity-90">Visiteur</p>
-                                <p class="text-xl font-bold"><?php echo $visiteur_count ?? 0; ?></p>
+                                <p class="text-xl font-bold"><?php echo $visiteur ?? 0; ?></p>
                             </div>
                             <div class="text-center">
                                 <p class="opacity-90">Guid</p>
-                                <p class="text-xl font-bold"><?php echo $guid_count ?? 0; ?></p>
+                                <p class="text-xl font-bold"><?php echo $guid ?? 0; ?></p>
                             </div>
 
                         </div>
@@ -447,104 +462,7 @@ $habitats = $habitat->getAllHabitat();
 
     </main>
 
-    <div id="addHabitat" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-        <div class="relative p-4 w-full max-w-md max-h-full">
-            <div class="relative bg-white border border-default rounded-base shadow-sm p-4 md:p-6">
-                <div class="flex items-center justify-between border-b border-default pb-4 md:pb-5">
-                    <button type="button" onclick="closeModalHabitat()" class="text-body bg-transparent hover:bg-neutral-tertiary hover:text-heading rounded-base text-sm w-9 h-9 ms-auto inline-flex justify-center items-center" data-modal-hide="addAnimal">
-                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6" />
-                        </svg>
-                        <span class="sr-only">Close modal</span>
-                    </button>
-                </div>
-                <form action="../controller/ajoutHabitat.php" method="POST">
-                    <div class="space-y-4">
-                        <div class="col-span-2">
-                            <label for="nomhabitat" class="block mb-2.5 text-sm font-medium text-heading">Nom Habitat</label>
-                            <input type="text" name="nomhabitat" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" required="">
-                        </div>
-                        <div>
-                            <label for="typeclimat" class="block text-sm font-medium text-gray-700 mb-2">Type Climat</label>
-                            <input type="text" name="typeclimat" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" required="">
-
-                        </div>
-                        <div class="col-span-2">
-                            <label for="description" class="block mb-2 text-sm font-medium text-gray-700">
-                                Description
-                            </label>
-                            <textarea id="product-description" name="description" rows="3"
-                                class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                                placeholder="Entrez la description ici..." required></textarea>
-                        </div>
-                        <div>
-                            <label for="zonezoo" class="block text-sm font-medium text-gray-700 mb-2">zone zoo</label>
-                            <input type="text" name="zonezoo" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" required="">
-
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-4 border-t border-default pt-4 md:pt-6">
-                        <button type="submit" class="inline-flex items-center  text-white bg-green-600  box-border border border-transparent focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">
-                            <svg class="w-4 h-4 me-1.5 -ms-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5" />
-                            </svg>
-                            Ajout Habitat
-                        </button>
-                        <button data-modal-hide="addAnimal" type="button" onclick="closeModalHabitat()" class="text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-4 focus:ring-neutral-tertiary shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <!-- modal update habitat -->
-    <div id="modifierHabitat" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-        <div class="relative p-4 w-full max-w-md max-h-full">
-            <div class="relative bg-white border border-default rounded-base shadow-sm p-4 md:p-6">
-                <div class="flex items-center justify-between border-b border-default pb-4 md:pb-5">
-                    <button type="button" onclick="closeModalModifierHabitat()" class="text-body bg-transparent hover:bg-neutral-tertiary hover:text-heading rounded-base text-sm w-9 h-9 ms-auto inline-flex justify-center items-center" data-modal-hide="addAnimal">
-                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6" />
-                        </svg>
-                        <span class="sr-only">Close modal</span>
-                    </button>
-                </div>
-                <form action="../controller/modifierHabitat.php" method="POST">
-                    <input id="idhabitat" name="id" type="hidden">
-                    <div class="space-y-4">
-                        <div class="col-span-2">
-                            <label for="nomhabitat" class="block mb-2.5 text-sm font-medium text-heading">Nom Habitat</label>
-                            <input id="nomHabitat" type="text" name="nomhabitat" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" required="">
-                        </div>
-                        <div>
-                            <label for="typeclimat" class="block text-sm font-medium text-gray-700 mb-2">Type Climat</label>
-                            <input id="typeClimatHabitat" type="text" name="typeclimat" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" required="">
-
-                        </div>
-                        <div class="col-span-2">
-                            <label for="description" class="block mb-2 text-sm font-medium text-gray-700">
-                                Description
-                            </label>
-                            <textarea id="description" name="description" rows="3"
-                                class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                                placeholder="Entrez la description ici..." required></textarea>
-                        </div>
-                        <div>
-                            <label for="zonezoo" class="block text-sm font-medium text-gray-700 mb-2">zone zoo</label>
-                            <input id="zonezoo" type="text" name="zonezoo" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" required="">
-
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-4 border-t border-default pt-4 md:pt-6">
-                        <button type="submit" class="inline-flex items-center  text-white bg-green-600  box-border border border-transparent focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">
-
-                            Modifier Habitat
-                        </button>
-                        <button data-modal-hide="addAnimal" type="button" onclick="closeModalModifierHabitat()" class="text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-4 focus:ring-neutral-tertiary shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+  
 
     <div id="addAnimal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
         <div class="relative p-4 w-full max-w-md max-h-full">
@@ -557,7 +475,7 @@ $habitats = $habitat->getAllHabitat();
                         <span class="sr-only">Close modal</span>
                     </button>
                 </div>
-                <form action="../controller/ajoutAnimal.php" method="POST">
+                <form action="../../controllers/ajouterAnimal.php" method="POST">
                     <div class="space-y-4">
                         <div class="col-span-2">
                             <label for="nom" class="block mb-2.5 text-sm font-medium text-heading">Nom</label>
@@ -593,11 +511,8 @@ $habitats = $habitat->getAllHabitat();
                                 name="habitat"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
                                 <option value="">Select a habitat</option>
-                                <?php while ($row = $resultHbitat2->fetch_assoc()) { ?>
-                                    <option value="<?= $row['id_habitat'] ?>"><?= $row['nomHabitat'] ?></option>
-                                <?php } ?>
-
-
+                                <option value="1">ddkljdklejdkl</option>
+                               
                             </select>
                         </div>
                     </div>
@@ -614,7 +529,6 @@ $habitats = $habitat->getAllHabitat();
             </div>
         </div>
     </div>
-
     <div id="updateAnimal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
         <div class="relative p-4 w-full max-w-md max-h-full">
             <div class="relative bg-white border border-default rounded-base shadow-sm p-4 md:p-6">
@@ -627,7 +541,7 @@ $habitats = $habitat->getAllHabitat();
                         <span class="sr-only">Close modal</span>
                     </button>
                 </div>
-                <form action="../controller/modifierAnimal.php" method="POST">
+                <form action="../../controllers/updateAnimal.php" method="POST">
                     <div class="space-y-4">
                         <input id="idAnimal" type="hidden" name="id">
                         <div class="col-span-2">
@@ -666,9 +580,7 @@ $habitats = $habitat->getAllHabitat();
                                 id="habitatAnimal"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
                                 <option value="">Select a habitat</option>
-                                <?php while ($row = $resultHbitat3->fetch_assoc()) { ?>
-                                    <option value="<?= $row['id_habitat'] ?>"><?= $row['nomHabitat'] ?></option>
-                                <?php } ?>
+                                <option value="1">jkhkdjhdjkh</option>
 
 
                             </select>
@@ -685,104 +597,110 @@ $habitats = $habitat->getAllHabitat();
             </div>
         </div>
     </div>
-    <div id="mesReservation"
-        class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
 
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl mx-4 relative animate-fade-in">
+    <div id="addHabitat" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-md max-h-full">
+            <div class="relative bg-white border border-default rounded-base shadow-sm p-4 md:p-6">
+                <div class="flex items-center justify-between border-b border-default pb-4 md:pb-5">
+                    <button type="button" onclick="closeModalHabitat()" class="text-body bg-transparent hover:bg-neutral-tertiary hover:text-heading rounded-base text-sm w-9 h-9 ms-auto inline-flex justify-center items-center" data-modal-hide="addAnimal">
+                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6" />
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                </div>
+                <form action="../../controllers/addHabitat.php" method="POST">
+                    <div class="space-y-4">
+                        <div class="col-span-2">
+                            <label for="nomhabitat" class="block mb-2.5 text-sm font-medium text-heading">Nom Habitat</label>
+                            <input type="text" name="nomhabitat" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" required="">
+                        </div>
+                        <div>
+                            <label for="typeclimat" class="block text-sm font-medium text-gray-700 mb-2">Type Climat</label>
+                            <input type="text" name="typeclimat" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" required="">
 
-            <!-- Close Button -->
-            <button onclick="closeModalMesReserver()"
-                class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl">
-                &times;
-            </button>
+                        </div>
+                        <div class="col-span-2">
+                            <label for="description" class="block mb-2 text-sm font-medium text-gray-700">
+                                Description
+                            </label>
+                            <textarea id="product-description" name="description" rows="3"
+                                class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                                placeholder="Entrez la description ici..." required></textarea>
+                        </div>
+                        <div>
+                            <label for="zonezoo" class="block text-sm font-medium text-gray-700 mb-2">zone zoo</label>
+                            <input type="text" name="zonezoo" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" required="">
 
-            <!-- Header -->
-            <div class="border-b px-6 py-4">
-                <h2 class="text-2xl font-bold text-gray-800 text-center">
-                    📋 List Réservations
-                </h2>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4 border-t border-default pt-4 md:pt-6">
+                        <button type="submit" class="inline-flex items-center  text-white bg-green-600  box-border border border-transparent focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">
+                            <svg class="w-4 h-4 me-1.5 -ms-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5" />
+                            </svg>
+                            Ajout Habitat
+                        </button>
+                        <button data-modal-hide="addAnimal" type="button" onclick="closeModalHabitat()" class="text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-4 focus:ring-neutral-tertiary shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Cancel</button>
+                    </div>
+                </form>
             </div>
+        </div>
+    </div>
+    <div id="modifierHabitat" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-md max-h-full">
+            <div class="relative bg-white border border-default rounded-base shadow-sm p-4 md:p-6">
+                <div class="flex items-center justify-between border-b border-default pb-4 md:pb-5">
+                    <button type="button" onclick="closeModalModifierHabitat()" class="text-body bg-transparent hover:bg-neutral-tertiary hover:text-heading rounded-base text-sm w-9 h-9 ms-auto inline-flex justify-center items-center" data-modal-hide="addAnimal">
+                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6" />
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                </div>
+                <form action="../../controllers/updateHabitat.php" method="POST">
+                    <input id="idhabitat" name="id" type="hidden">
+                    <div class="space-y-4">
+                        <div class="col-span-2">
+                            <label for="nomhabitat" class="block mb-2.5 text-sm font-medium text-heading">Nom Habitat</label>
+                            <input id="nomHabitat" type="text" name="nomhabitat" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" required="">
+                        </div>
+                        <div>
+                            <label for="typeclimat" class="block text-sm font-medium text-gray-700 mb-2">Type Climat</label>
+                            <input id="typeClimatHabitat" type="text" name="typeclimat" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" required="">
 
-            <!-- Content -->
-            <div class="p-6 overflow-x-auto max-h-[70vh]">
+                        </div>
+                        <div class="col-span-2">
+                            <label for="description" class="block mb-2 text-sm font-medium text-gray-700">
+                                Description
+                            </label>
+                            <textarea id="description" name="description" rows="3"
+                                class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                                placeholder="Entrez la description ici..." required></textarea>
+                        </div>
+                        <div>
+                            <label for="zonezoo" class="block text-sm font-medium text-gray-700 mb-2">zone zoo</label>
+                            <input id="zonezoo" type="text" name="zonezoo" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" required="">
 
-                <table class="min-w-full text-sm border border-gray-200 rounded-xl overflow-hidden">
-                    <thead class="bg-gray-100 sticky top-0 z-10">
-                        <tr>
-                            <th class="px-4 py-3 text-left font-semibold">Titre</th>
-                            <th class="px-4 py-3 text-left font-semibold">Utilisateur</th>
-                            <th class="px-4 py-3 text-center font-semibold">Personnes</th>
-                            <th class="px-4 py-3 text-center font-semibold">Réservé le</th>
-                            <th class="px-4 py-3 text-center font-semibold">Date visite</th>
-                            <th class="px-4 py-3 text-center font-semibold">Heure</th>
-                            <th class="px-4 py-3 text-center font-semibold">Statut</th>
-                            <th class="px-4 py-3 text-center font-semibold">Durée</th>
-                            <th class="px-4 py-3 text-center font-semibold">Total</th>
-                        </tr>
-                    </thead>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4 border-t border-default pt-4 md:pt-6">
+                        <button type="submit" class="inline-flex items-center  text-white bg-green-600  box-border border border-transparent focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">
 
-                    <tbody class="divide-y divide-gray-200 bg-white">
-                        <?php if ($resultMesReservation->num_rows > 0) {
-                            while ($row = $resultMesReservation->fetch_assoc()) { ?>
-                                <tr class="hover:bg-gray-50 transition">
-
-                                    <td class="px-4 py-3 font-medium">
-                                        <?= htmlspecialchars($row["titre"]) ?>
-                                    </td>
-
-                                    <td class="px-4 py-3">
-                                        <?= htmlspecialchars($row["nom"] . ' ' . $row["prenom"]) ?>
-                                    </td>
-
-                                    <td class="px-4 py-3 text-center">
-                                        <?= $row["nbpersonnes"] ?>
-                                    </td>
-
-                                    <td class="px-4 py-3 text-center">
-                                        <?= $row["datereservation"] ?>
-                                    </td>
-
-                                    <td class="px-4 py-3 text-center">
-                                        <?= $row["dateVG"] ?>
-                                    </td>
-
-                                    <td class="px-4 py-3 text-center">
-                                        <?= $row["timeVG"] ?>
-                                    </td>
-
-                                    <!-- Status Badge -->
-                                    <td class="px-4 py-3 text-center">
-                                        <span class="px-3 py-1 rounded-full text-xs font-semibold
-                                    <?= $row["statut"] === 'active'
-                                        ? 'bg-green-100 text-green-700'
-                                        : 'bg-yellow-100 text-yellow-700' ?>">
-                                            <?= ucfirst($row["statut"]) ?>
-                                        </span>
-                                    </td>
-
-                                    <td class="px-4 py-3 text-center">
-                                        <?= $row["duree"] ?>
-                                    </td>
-
-                                    <td class="px-4 py-3 text-center font-semibold text-green-600">
-                                        <?= $row["prix"] * $row["nbpersonnes"] ?> MAD
-                                    </td>
-
-
-
-                                </tr>
-                            <?php }
-                        } else { ?>
-                            <td colspan="10" class=" text-xl px-4 py-3 text-center">🚫 Aucune réservation trouvée</td>
-                        <?php } ?>
-                    </tbody>
-                </table>
-
+                            Modifier Habitat
+                        </button>
+                        <button data-modal-hide="addAnimal" type="button" onclick="closeModalModifierHabitat()" class="text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-4 focus:ring-neutral-tertiary shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Cancel</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
+   
+   
+
     <script>
+        
         function openModalAnimal() {
             document.getElementById("addAnimal").classList.remove("hidden");
             document.getElementById("addAnimal").classList.add("block");
