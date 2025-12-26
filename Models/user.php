@@ -1,4 +1,6 @@
 <?php 
+require_once 'database.php';
+
 class User{
     private $name;
     private $firstName;
@@ -14,6 +16,34 @@ class User{
        $this->statut = $statut;
        
     }
+
+    public function getAllUser()
+    {
+        $db = Database::connect();
+        $allUser = "SELECT id_user, nom, prenom, email, role, statuse FROM utilisateur";
+        $stmt = $db->prepare($allUser);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function removeUser($id)
+    {
+        $delete_user = "DELETE FROM utilisateur WHERE id_user = :id";
+
+        $db = Database::connect();
+        $stmt = $db->prepare($delete_user);
+        return $stmt->execute(['id' => $id]);
+    }
+
+    public function statisticUser()
+    {
+        $db = Database::connect();
+        $allUser = "SELECT role, COUNT(*) AS total FROM utilisateur GROUP BY role";
+        $stmt = $db->prepare($allUser);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
 
     public function getName(){
         return $this->name;
