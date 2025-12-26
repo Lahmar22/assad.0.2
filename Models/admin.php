@@ -19,34 +19,4 @@ class Admin extends User
 
     }
 
-
-
-
-    // public function addHabitat(Habitat $habitat)
-    // {
-
-    //     $sqlAddHabitat = "INSERT INTO habitats(nomHabitat, typeclimat, description, zonezoo) VALUES(?, ?, ?, ?)";
-
-    //     $db = Database::connect();
-    //     $stmt = $db->prepare($sqlAddHabitat);
-
-    //     return $stmt->execute([
-    //         $habitat->getNomHabitat(),
-    //         $habitat->getTypeclimat(),
-    //         $habitat->getDescription(),
-    //         $habitat->getZonezoo()
-            
-    //     ]);
-    // }
-
-
-
-
-    public function updateAnimal() {}
-
-    public function updateHabitat() {}
-
-    public function removeAnimal() {}
-
-    public function removeHabitat() {}
 }
