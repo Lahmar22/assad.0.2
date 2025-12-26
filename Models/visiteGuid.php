@@ -57,6 +57,15 @@ class VisitesGuides
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
+    public function getVisitesGuidesRecherche($cherche)
+    {
+        $db = Database::connect();
+        $allVisiteGuides = "SELECT id, titre, dateheure, langue, capacite_max, statut, duree, prix FROM visitesguidees WHERE titre = :cherche";
+        $stmt = $db->prepare($allVisiteGuides);
+        $stmt->execute(['cherche' => $cherche]);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
 
 
     public function updateStatutVisitGuid($status, $id)
