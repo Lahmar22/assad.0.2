@@ -17,22 +17,10 @@ $animals = $animal->getAllAnimaux();
 $visiteGuid = new VisitesGuides();
 $visiteGuides = $visiteGuid->getAllVisitesGuides();
 
-$reservation = new Reservation();
+$reservation = new Reservations();
 $reservations = $reservation->getAllReservation($_SESSION['id_user']);
 
-// if (!isset($_SESSION['user_idVisiteur'])) {
-//     header("Location: ../../index.php");
-//     exit();
-// }
 
-// if (isset($_SESSION['message'])) {
-//     $msg = $_SESSION['message'];
-//     unset($_SESSION['message']);
-// }
-// if (isset($_SESSION['messageCommentaire'])) {
-//     $msgCommentaire = $_SESSION['messageCommentaire'];
-//     unset($_SESSION['messageCommentaire']);
-// }
 
 
 
@@ -343,9 +331,9 @@ $reservations = $reservation->getAllReservation($_SESSION['id_user']);
 
             <h2 class="text-2xl font-bold mb-4 text-center">Réserver une visite</h2>
 
-            <form method="post" action="../controller/reserver.php">
+            <form method="post" action="../../controllers/reservation.php">
                 <input id="id_visiteGuid" type="hidden" name="id_visiteGuid">
-                <input type="hidden" name="id_user" value="<?= $_SESSION['user_idVisiteur'] ?>">
+                <input type="hidden" name="id_user" value="<?= $_SESSION['id_user'] ?>">
 
                 <div class="mb-4">
                     <label class="block mb-1 font-medium">Nombre de personnes</label>
@@ -451,7 +439,7 @@ $reservations = $reservation->getAllReservation($_SESSION['id_user']);
 
                                 <!-- Action -->
                                 <td class="px-4 py-3 text-center">
-                                    <form action="../controller/annuler.php" method="POST"
+                                    <form action="../../controllers/annulerReservation.php" method="POST"
                                         onsubmit="return confirm('Voulez-vous vraiment annuler cette réservation ?');">
                                         <input type="hidden" name="id" value="<?= $r->id ?>">
                                         <input type="hidden" name="idvisite" value="<?= $r->idvisite ?>">
