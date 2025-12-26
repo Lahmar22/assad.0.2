@@ -11,35 +11,36 @@ class Admin extends User
         parent::__construct($name, $firstName, $email, $password, $statut);
     }
 
-    public function getAllUser()
-    {
+    public function updateStatut($status, $id){
         $db = Database::connect();
-        $allUser = "SELECT id_user, nom, prenom, email, role, statuse FROM utilisateur";
-        $stmt = $db->prepare($allUser);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
-    }
+        $sqlUpdateStatut = "UPDATE utilisateur SET statuse = :status WHERE id_user = :id";
+        $stmt = $db->prepare($sqlUpdateStatut);
+        return $stmt->execute(['id'  => $id, 'status' => $status]);
 
-    public function addAnimal(Animal $animal)
-    {
-        $Add_animal = "INSERT INTO animaux (nomAnimal, espèce, alimentation, image, paysorigine, descriptioncourte, id_habitat)
-        VALUES(?, ?, ?, ?, ?, ?, ? )";
-
-        $db = Database::connect();
-        $stmt = $db->prepare($Add_animal);
-        return $stmt->execute([
-            $animal->getNomAnimal(),
-            $animal->getEspece(),
-            $animal->getAlimentation(),
-            $animal->getImage(),
-            $animal->getPaysOrigine(),
-            $animal->getDescriptionCourte(),
-            $animal->getIdHabitat()
-        ]);
     }
 
 
-    
+
+
+    // public function addHabitat(Habitat $habitat)
+    // {
+
+    //     $sqlAddHabitat = "INSERT INTO habitats(nomHabitat, typeclimat, description, zonezoo) VALUES(?, ?, ?, ?)";
+
+    //     $db = Database::connect();
+    //     $stmt = $db->prepare($sqlAddHabitat);
+
+    //     return $stmt->execute([
+    //         $habitat->getNomHabitat(),
+    //         $habitat->getTypeclimat(),
+    //         $habitat->getDescription(),
+    //         $habitat->getZonezoo()
+            
+    //     ]);
+    // }
+
+
+
 
     public function updateAnimal() {}
 
