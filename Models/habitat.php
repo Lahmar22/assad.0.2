@@ -1,22 +1,20 @@
-<?php 
+<?php
 require_once 'database.php';
 
-class Habitat{
-    private $id_habitat;
+class Habitat
+{
     private $nomHabitat;
     private $typeclimat;
     private $description;
     private $zonezoo;
 
-    
-    public function __construct($id_habitat = null, $nomHabitat = null, $typeclimat = null, $description = null, $zonezoo = null)
+
+    public function __construct($nomHabitat = null, $typeclimat = null, $description = null, $zonezoo = null)
     {
-        $this->id_habitat=$id_habitat;
-        $this->nomHabitat=$nomHabitat;
-        $this->typeclimat=$typeclimat;
-        $this->description=$description;
-        $this->zonezoo=$zonezoo;
-       
+        $this->nomHabitat = $nomHabitat;
+        $this->typeclimat = $typeclimat;
+        $this->description = $description;
+        $this->zonezoo = $zonezoo;
     }
 
     public function getAllHabitat()
@@ -28,9 +26,9 @@ class Habitat{
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
-    public function addHabitat(Habitat $habitat) {
-        $Add_habitat = "INSERT INTO habitats (nomHabitat, typeclimat, description, zonezoo)
-        VALUES(?, ?, ?, ?)";
+    public function addHabitat(Habitat $habitat)
+    {
+        $Add_habitat = "INSERT INTO habitats(nomHabitat, typeclimat, description, zonezoo) VALUES(?, ?, ?, ?)";
 
         $db = Database::connect();
         $stmt = $db->prepare($Add_habitat);
@@ -39,46 +37,71 @@ class Habitat{
             $habitat->getTypeclimat(),
             $habitat->getDescription(),
             $habitat->getZonezoo()
-           
+
+        ]);
+    }
+
+    public function updateHabitat(Habitat $habitat , $id)
+    {
+        $sqlupdateHab = "UPDATE habitats SET nomHabitat = :nomhabitat, typeclimat = :typeclimat, description = :description, zonezoo = :zonezoo
+            WHERE id_habitat = :id";
+
+        $db = Database::connect();
+        $stmt = $db->prepare($sqlupdateHab);
+
+        return $stmt->execute([
+            'nomhabitat'  => $habitat->getNomHabitat(),
+            'typeclimat' => $habitat->getTypeClimat(),
+            'description' => $habitat->getDescription(),
+            'zonezoo'    => $habitat->getZoneZoo(),
+            'id'         => $id
         ]);
     }
 
 
-    public function getId_habitat(){
-        return $this->id_habitat;
-    }
-    public function setId_habitat($id_habitat){
-        $this->id_habitat = $id_habitat;
+    public function removeHabitat($id)
+    {
+        $Add_habitat = "DELETE FROM habitats WHERE id_habitat = :id";
+
+        $db = Database::connect();
+        $stmt = $db->prepare($Add_habitat);
+        return $stmt->execute(['id' => $id]);
     }
 
-    public function getNomHabitat(){
+
+    public function getNomHabitat()
+    {
         return $this->nomHabitat;
     }
-    public function setNomHabitat($nomHabitat){
+    public function setNomHabitat($nomHabitat)
+    {
         $this->nomHabitat = $nomHabitat;
     }
 
-    public function getTypeclimat(){
+    public function getTypeclimat()
+    {
         return $this->typeclimat;
     }
-    public function setTypeclimat($typeclimat){
+    public function setTypeclimat($typeclimat)
+    {
         $this->typeclimat = $typeclimat;
     }
 
-    public function getDescription(){
+    public function getDescription()
+    {
         return $this->description;
     }
-    public function setDescription($description){
+    public function setDescription($description)
+    {
         $this->description = $description;
     }
 
-    public function getZonezoo(){
+    public function getZonezoo()
+    {
         return $this->zonezoo;
     }
-    public function setImage($zonezoo){
+    public function setzonezoo($zonezoo)
+    {
         $this->zonezoo = $zonezoo;
     }
-
-    
 }
-?>
