@@ -6,16 +6,14 @@ require_once '../../Models/visiteGuid.php';
 require_once '../../Models/reservations.php';
 
 if (!isset($_SESSION['id_user'])) {
-    header("Location: ../../index.php");
+    header('Location: ../../index.php');
     exit();
 }
 
-$nameVisite_guid = $_POST["nameVisite_guid"];
-
+$nameVisite_guid = $_POST['nameVisite_guid'];
 
 $animal = new Animal();
 $animals = $animal->getAllAnimaux();
-
 
 $visiteGuid = new VisitesGuides();
 $visiteGuides = $visiteGuid->getAllVisitesGuides();
@@ -23,10 +21,6 @@ $visiteGuidRecherche = $visiteGuid->getVisitesGuidesRecherche($nameVisite_guid);
 
 $reservation = new Reservations();
 $reservations = $reservation->getAllReservation($_SESSION['id_user']);
-
-
-
-
 
 ?>
 
@@ -121,7 +115,7 @@ $reservations = $reservation->getAllReservation($_SESSION['id_user']);
         <div class="bg-white shadow-md rounded-lg p-6 mb-6 flex items-center gap-4">
             <!-- Avatar -->
             <div class="w-12 h-12 rounded-full bg-green-600 text-white flex items-center justify-center text-xl font-bold">
-                <?= strtoupper(substr($_SESSION['nom'], 0, 1)) . strtoupper(substr($_SESSION['prenom'], 0, 1))  ?>
+                <?= strtoupper(substr($_SESSION['nom'], 0, 1)) . strtoupper(substr($_SESSION['prenom'], 0, 1)) ?>
             </div>
 
             <!-- Texte -->
@@ -193,7 +187,7 @@ $reservations = $reservation->getAllReservation($_SESSION['id_user']);
 
         <section class="mb-12">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                <?php if(count($visiteGuidRecherche) > 0){
+                <?php if (count($visiteGuidRecherche) > 0) {
                     foreach ($visiteGuidRecherche as $vd) { ?>
                     <div class="max-w-md rounded-2xl overflow-hidden shadow-lg bg-white hover:shadow-xl transition">
 
@@ -264,8 +258,7 @@ $reservations = $reservation->getAllReservation($_SESSION['id_user']);
                     </div>
 
                 <?php }
-
-                } else{ ?>
+                } else { ?>
                     <?php foreach ($visiteGuides as $vd) { ?>
                         <div class="max-w-md rounded-2xl overflow-hidden shadow-lg bg-white hover:shadow-xl transition">
 
@@ -298,8 +291,8 @@ $reservations = $reservation->getAllReservation($_SESSION['id_user']);
                         </div>
 
                         <div class="flex justify-between">
-                        <span>👥 Places restantes</span>
-                        <span class="font-semibold text-green-600"><?= $vd->capacite_max ?></span>
+                            <span>👥 Places restantes</span>
+                            <span class="font-semibold text-green-600"><?= $vd->capacite_max ?></span>
                         </div>
 
                         <hr>
