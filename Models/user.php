@@ -6,14 +6,13 @@ class User{
     private $firstName;
     private $email;
     private $password;
-    private $statut;
 
-    public function __construct($name, $firstName, $email, $password, $statut){
+
+    public function __construct($name = null, $firstName = null, $email = null, $password = null){
        $this->name = $name;
        $this->firstName = $firstName;
        $this->email = $email;
        $this->password = $password;
-       $this->statut = $statut;
        
     }
 
@@ -42,6 +41,13 @@ class User{
         $stmt = $db->prepare($allUser);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function inscription($nom, $prenom, $email, $password, $role, $statut){
+        $db = Database::connect();
+        $sqlInscription = "INSERT INTO utilisateur(nom, prenom, email, password, role, statuse) VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $db->prepare($sqlInscription);
+        $stmt->execute([$nom, $prenom, $email, $password,  $role, $statut]);
     }
 
 
@@ -73,12 +79,6 @@ class User{
         $this->password=$password;
     }
     
-    public function getStatut(){
-        return $this->statut;
-    }
-    public function setStatut($statut){
-        $this->statut=$statut;
-    }
 
 }
 ?>
