@@ -16,7 +16,7 @@ class RemoveVisiteGuid
             $visitesG = new VisitesGuides();
             $visitesG->removeVisitGuid($id);
 
-            header("Location: ../Views/guid/home.php?success=1");
+            header("Location: ../Views/guid/visiteGuid.php?success=1");
             exit();
         } catch (PDOException $e) {
 
