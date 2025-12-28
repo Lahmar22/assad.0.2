@@ -3,13 +3,14 @@
 session_start();
 
 if (!isset($_SESSION['id_admin'])) {
-    header("Location: ../../index.php");
+    header('Location: ../../index.php');
     exit();
 }
 
 require_once '../../Models/animal.php';
 require_once '../../Models/admin.php';
 require_once '../../Models/habitat.php';
+require_once '../../Models/reservations.php';
 
 $admin = new Admin();
 $users = $admin->getAllUser();
@@ -23,19 +24,23 @@ foreach ($statistic as $row) {
 $guid = $roles['guid'];
 $visiteur = $roles['visiteur'];
 
-// $total = $visiteur + $guid;
-
-// if($total != 0){
-//     $visiteur_percentage = $visiteur/$total;
-// }
-
+if (isset($_POST['filterPaysOrigin'], $_POST['filter_habitat'])) {
+    $filterPaysOrigin = $_POST['filterPaysOrigin'];
+    $filter_habitat = $_POST['filter_habitat'];
+}
 
 $animal = new Animal();
 $animals = $animal->getAllAnimaux();
 
 $habitat = new Habitat();
 $habitats = $habitat->getAllHabitat();
+$getNomHabitat = $habitat->selectNomHabitat();
 
+$PayAnimal = $animal->getPaysOrigin();
+$animalFilter = $animal->getAnimauxRecherche($filterPaysOrigin, $filter_habitat);
+
+$reservation = new Reservations();
+$reservations = $reservation->getAllReservation();
 ?>
 
 <!DOCTYPE html>
@@ -108,7 +113,7 @@ $habitats = $habitat->getAllHabitat();
         <div class="bg-white shadow-md rounded-lg p-6 mb-6 flex items-center gap-4">
             <!-- Avatar -->
             <div class="w-12 h-12 rounded-full bg-green-600 text-white flex items-center justify-center text-xl font-bold">
-                <?= strtoupper(substr($_SESSION['nom'], 0, 1)) . strtoupper(substr($_SESSION['prenom'], 0, 1))  ?>
+                <?= strtoupper(substr($_SESSION['nom'], 0, 1)) . strtoupper(substr($_SESSION['prenom'], 0, 1)) ?>
             </div>
 
             <!-- Texte -->
@@ -127,8 +132,9 @@ $habitats = $habitat->getAllHabitat();
 
 
         <div id="filter" class="flex flex-col lg:flex-row gap-6 mb-8">
+
             <!-- Filter Form -->
-            <form action="dashboard.php" method="POST"
+            <form action="home.php" method="POST"
                 class="flex flex-col lg:flex-row gap-4 bg-white p-4 rounded-lg shadow-md w-full">
 
                 <!-- Alimentaire -->
@@ -139,6 +145,9 @@ $habitats = $habitat->getAllHabitat();
                     <select name="filterPaysOrigin"
                         class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500">
                         <option value="">Tout</option>
+                        <?php foreach ($PayAnimal as $pa) { ?>
+                            <option value="<?= $pa->paysorigine ?>"><?= $pa->paysorigine ?></option>
+                        <?php } ?>
 
                     </select>
                 </div>
@@ -151,6 +160,9 @@ $habitats = $habitat->getAllHabitat();
                     <select name="filter_habitat"
                         class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500">
                         <option value="">Tout</option>
+                        <?php foreach ($getNomHabitat as $nh) { ?>
+                            <option value="<?= $nh->nomHabitat ?>"><?= $nh->nomHabitat ?></option>
+                        <?php } ?>
 
                     </select>
                 </div>
@@ -315,7 +327,52 @@ $habitats = $habitat->getAllHabitat();
                     <!-- Table Body -->
                     <tbody class="divide-y divide-gray-200">
 
-                        <?php foreach ($animals as $a) { ?>
+                        <?php if (count($animalFilter) > 0) {
+                            foreach ($animalFilter as $af) { ?>
+                                <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $af->id ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $af->nomAnimal ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $af->espèce ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $af->alimentation ?></td>
+                                <td class="px-6 py-4 w-25">
+                                    <img src="<?= $af->image ?>"
+                                        alt="<?= $af->nomAnimal ?>"
+                                        class="w-16 h-16 rounded-full object-cover border border-gray-300 shadow-sm">
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $af->paysorigine ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $af->descriptioncourte ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-700"><?= $af->nomHabitat ?></td>
+
+                                <td class="flex gap-3 px-6 py-4 text-center">
+                                    <form action="../../controllers/removeAnimal.php" method="POST"
+                                        onsubmit="return confirm('Voulez-vous vraiment supprimer cet Animal ?');">
+                                        <input type="hidden" name="id" value="<?= $af->id ?>">
+                                        <button
+                                            type="submit"
+                                            class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
+                                            Supprimer
+                                        </button>
+                                    </form>
+
+                                    <button class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
+                                        type="button"
+                                        onclick="openModalAnimalModify(this)"
+                                        data-id="<?= $af->id ?>"
+                                        data-nom-animal="<?= $af->nomAnimal ?>"
+                                        data-espece="<?= $af->espèce ?>"
+                                        data-alimentation="<?= $af->alimentation ?>"
+                                        data-image="<?= $af->image ?>"
+                                        data-paysorigine="<?= $af->paysorigine ?>"
+                                        data-descriptioncourte="<?= $af->descriptioncourte ?>"
+                                        data-id-habitat="<?= $af->nomHabitat ?>">
+                                        Modifier
+                                    </button>
+
+                                </td>
+                            </tr>
+                            <?php } ?>
+                        <?php } else {
+                            foreach ($animals as $a) { ?>
                             <tr class="hover:bg-gray-50 transition">
                                 <td class="px-6 py-4 text-sm text-gray-700"><?= $a->id ?></td>
                                 <td class="px-6 py-4 text-sm text-gray-700"><?= $a->nomAnimal ?></td>
@@ -346,7 +403,7 @@ $habitats = $habitat->getAllHabitat();
                                         onclick="openModalAnimalModify(this)"
                                         data-id="<?= $a->id ?>"
                                         data-nom-animal="<?= $a->nomAnimal ?>"
-                                        data-espece="<?= $a->espèce  ?>"
+                                        data-espece="<?= $a->espèce ?>"
                                         data-alimentation="<?= $a->alimentation ?>"
                                         data-image="<?= $a->image ?>"
                                         data-paysorigine="<?= $a->paysorigine ?>"
@@ -357,6 +414,7 @@ $habitats = $habitat->getAllHabitat();
 
                                 </td>
                             </tr>
+                        <?php } ?>
                         <?php } ?>
 
 
@@ -391,12 +449,12 @@ $habitats = $habitat->getAllHabitat();
                         <div class="flex items-center justify-between text-sm mb-2">
                             <span class="text-gray-600">Percentage</span>
                             <span class="font-semibold text-red-600">
-                                <?php echo number_format(($visiteur/($visiteur + $guid)) * 100, 2, ',', ' ') ?? 0; ?>%
+                                <?php echo number_format(($visiteur / ($visiteur + $guid)) * 100, 2, ',', ' ') ?? 0; ?>%
                             </span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
                             <div class="bg-red-500 h-2 rounded-full transition-all duration-500"
-                                style="width: <?php echo ($visiteur/($visiteur + $guid)) * 100 ?? 0; ?>%">
+                                style="width: <?php echo ($visiteur / ($visiteur + $guid)) * 100 ?? 0; ?>%">
                             </div>
                         </div>
                     </div>
@@ -417,12 +475,12 @@ $habitats = $habitat->getAllHabitat();
                         <div class="flex items-center justify-between text-sm mb-2">
                             <span class="text-gray-600">Percentage</span>
                             <span class="font-semibold text-green-600">
-                                <?php echo number_format(($guid/($visiteur + $guid)) * 100, 2, ',', ' ') ?? 0; ?>%
+                                <?php echo number_format(($guid / ($visiteur + $guid)) * 100, 2, ',', ' ') ?? 0; ?>%
                             </span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
                             <div class="bg-green-500 h-2 rounded-full transition-all duration-500"
-                                style="width: <?php echo ($guid/($visiteur + $guid)) * 100 ?? 0; ?>%">
+                                style="width: <?php echo ($guid / ($visiteur + $guid)) * 100 ?? 0; ?>%">
                             </div>
                         </div>
                     </div>
@@ -434,7 +492,7 @@ $habitats = $habitat->getAllHabitat();
                             <div>
                                 <p class="text-sm opacity-90 font-medium">Total</p>
                                 <p class="text-3xl font-bold">
-                                    <?= $guid + $visiteur  ?? 0; ?>
+                                    <?= $guid + $visiteur ?? 0; ?>
                                 </p>
                             </div>
                         </div>
@@ -692,6 +750,103 @@ $habitats = $habitat->getAllHabitat();
                         <button data-modal-hide="addAnimal" type="button" onclick="closeModalModifierHabitat()" class="text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-4 focus:ring-neutral-tertiary shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Cancel</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="mesReservation"
+        class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl mx-4 relative animate-fade-in">
+
+            <!-- Close Button -->
+            <button onclick="closeModalMesReserver()"
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl">
+                &times;
+            </button>
+
+            <!-- Header -->
+            <div class="border-b px-6 py-4">
+                <h2 class="text-2xl font-bold text-gray-800 text-center">
+                    📋 List Réservations
+                </h2>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 overflow-x-auto max-h-[70vh]">
+
+                <table class="min-w-full text-sm border border-gray-200 rounded-xl overflow-hidden">
+                    <thead class="bg-gray-100 sticky top-0 z-10">
+                        <tr>
+                            <th class="px-4 py-3 text-left font-semibold">Titre</th>
+                            <th class="px-4 py-3 text-left font-semibold">Utilisateur</th>
+                            <th class="px-4 py-3 text-center font-semibold">Personnes</th>
+                            <th class="px-4 py-3 text-center font-semibold">Réservé le</th>
+                            <th class="px-4 py-3 text-center font-semibold">Date visite</th>
+                            <th class="px-4 py-3 text-center font-semibold">Heure</th>
+                            <th class="px-4 py-3 text-center font-semibold">Statut</th>
+                            <th class="px-4 py-3 text-center font-semibold">Durée</th>
+                            <th class="px-4 py-3 text-center font-semibold">Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                        <?php if (count($reservations) > 0) {
+                            foreach ($reservations as $r) { ?>
+                                <tr class="hover:bg-gray-50 transition">
+
+                                    <td class="px-4 py-3 font-medium">
+                                        <?= htmlspecialchars($r->titre) ?>
+                                    </td>
+
+                                    <td class="px-4 py-3">
+                                        <?= htmlspecialchars($r->nom . ' ' . $r->prenom) ?>
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center">
+                                        <?= $r->nbpersonnes ?>
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center">
+                                        <?= $r->datereservation ?>
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center">
+                                        <?= $r->dateVG ?>
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center">
+                                        <?= $r->timeVG ?>
+                                    </td>
+
+                                    <!-- Status Badge -->
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="px-3 py-1 rounded-full text-xs font-semibold
+                                    <?= $r->statut === 'active'
+                                        ? 'bg-green-100 text-green-700'
+                                        : 'bg-yellow-100 text-yellow-700' ?>">
+                                            <?= ucfirst($r->statut) ?>
+                                        </span>
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center">
+                                        <?= $r->duree ?>
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center font-semibold text-green-600">
+                                        <?= $r->prix * $r->nbpersonnes ?> MAD
+                                    </td>
+
+
+
+                                </tr>
+                            <?php }
+                        } else { ?>
+                            <td colspan="10" class=" text-xl px-4 py-3 text-center">🚫 Aucune réservation trouvée</td>
+                        <?php } ?>
+                    </tbody>
+                </table>
+
             </div>
         </div>
     </div>
