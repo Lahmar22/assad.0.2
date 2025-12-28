@@ -28,7 +28,7 @@ $visiteGuides = $visiteGuid->getAllVisitesGuides();
 $visiteGuidRecherche = $visiteGuid->getVisitesGuidesRecherche($nameVisite_guid);
 
 $reservation = new Reservations();
-$reservations = $reservation->getAllReservation($_SESSION['id_user']);
+$reservations = $reservation->getAllReservationByIdUser($_SESSION['id_user']);
 
 ?>
 
