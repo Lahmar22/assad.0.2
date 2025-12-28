@@ -21,11 +21,12 @@ $animalFilter = $animal->getAnimauxRecherche($filterPaysOrigin, $filter_habitat)
 $PayAnimal = $animal->getPaysOrigin();
 
 $habitat = new Habitat();
-$getNomHabitat =  $habitat->selectNomHabitat();
+$getNomHabitat = $habitat->selectNomHabitat();
 
 $visiteGuid = new VisitesGuides();
 $visiteGuides = $visiteGuid->getAllVisitesGuides();
 $visiteGuidRecherche = $visiteGuid->getVisitesGuidesRecherche($nameVisite_guid);
+$visitGuidDejaParcour = $visiteGuid->getVisiteGuidDejaParcour($_SESSION['id_user']);
 
 $reservation = new Reservations();
 $reservations = $reservation->getAllReservationByIdUser($_SESSION['id_user']);
@@ -154,7 +155,7 @@ $reservations = $reservation->getAllReservationByIdUser($_SESSION['id_user']);
                     <select name="filterPaysOrigin"
                         class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500">
                         <option value="">Tout</option>
-                        <?php foreach($PayAnimal as $pa){ ?>
+                        <?php foreach ($PayAnimal as $pa) { ?>
                             <option value="<?= $pa->paysorigine ?>"><?= $pa->paysorigine ?></option>
                         <?php } ?>
 
@@ -169,7 +170,7 @@ $reservations = $reservation->getAllReservationByIdUser($_SESSION['id_user']);
                     <select name="filter_habitat"
                         class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500">
                         <option value="">Tout</option>
-                        <?php foreach($getNomHabitat as $nh){ ?>
+                        <?php foreach ($getNomHabitat as $nh) { ?>
                             <option value="<?= $nh->nomHabitat ?>"><?= $nh->nomHabitat ?></option>
                         <?php } ?>
 
@@ -683,6 +684,75 @@ $reservations = $reservation->getAllReservationByIdUser($_SESSION['id_user']);
             <ul id="parcourList" class="space-y-4 max-h-96 overflow-y-auto px-2">
 
             </ul>
+        </div>
+    </div>
+
+    <div id="modalGuidParcouru"
+        class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
+
+        <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden">
+
+            <!-- Header -->
+            <div class="flex justify-between items-center px-6 py-4 border-b bg-gray-50">
+                <h2 class="text-xl font-bold text-gray-800">
+                    🗺️ Visites guidées déjà parcourues
+                </h2>
+                <button onclick="closeModalGuidParcouru()"
+                    class="text-gray-400 hover:text-gray-600 text-2xl font-bold">
+                    &times;
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+
+                <!-- ONE VISITE CARD -->
+                <?php foreach ($visitGuidDejaParcour as $v) { ?>
+                    <div class="border rounded-xl p-5 shadow-sm hover:shadow-md transition">
+
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-lg font-semibold text-gray-800">
+                                <?= $v->titre ?>
+                            </h3>
+                            <span class="text-sm text-gray-500">
+                                📅 <?= $v->dateheure ?>
+                            </span>
+                            
+                        </div>
+                        <!-- Comment form -->
+                        <form action="../../controllers/addComment.php" method="POST" class="mt-4">
+                            <input type="hidden" name="id_visite" value="<?= $v->visite_id ?>">
+                            <input type="hidden" name="id_user" value="<?= $v->id_user ?>">
+                            <div class="mb-4">
+                            <label class="block mb-1 font-medium">Note (1-5)</label>
+                            <input type="number"
+                                name="note"
+                                min="1"
+                                required
+                                class="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300">
+                            </div>
+
+                            <textarea name="commentaire" rows="3"
+                                class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                                placeholder="Ajoutez votre commentaire sur cette visite..."></textarea>
+
+                            <button type="submit"   
+                                class="mt-3 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition">
+                                Ajouter commentaire
+                            </button>
+                        </form>
+                    </div>
+                <?php } ?>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-4 border-t bg-gray-50 text-right">
+                <button onclick="closeModalGuidParcouru()"
+                    class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg transition">
+                    Fermer
+                </button>
+            </div>
         </div>
     </div>
 
