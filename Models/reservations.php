@@ -14,7 +14,7 @@ class Reservations
         $this->dateReservation = $dateReservation;
     }
 
-    public function getAllReservation($id_utilisateur)
+    public function getAllReservationByIdUser($id_utilisateur)
     {
         $db = Database::connect();
         $allReservation = "SELECT r.id, r.idvisite, r.idutilisateur, r.nbpersonnes, r.datereservation, v.id AS visite_id, v.titre, 
@@ -24,6 +24,19 @@ class Reservations
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+
+    public function getAllReservation()
+    {
+        $db = Database::connect();
+        $sqlAllReservation = "SELECT r.id, r.idvisite, r.idutilisateur, r.nbpersonnes, r.datereservation, v.id AS visite_id, v.titre, DATE(v.dateheure) AS dateVG, TIME(v.dateheure) AS timeVG, v.statut, v.duree, v.prix, u.id_user, u.nom, u.prenom 
+        FROM reservations r INNER JOIN visitesguidees v ON r.idvisite = v.id INNER JOIN utilisateur u ON r.idutilisateur = u.id_user";
+
+        $stmt = $db->prepare($sqlAllReservation);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    
 
     public function reservationVisiteGuid(Reservations $reservation)
     {
