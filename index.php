@@ -95,7 +95,7 @@
                         Create an Account
                     </h3>
 
-                    <form action="controller/inscription.php" method="POST" class="space-y-4">
+                    <form action="controllers/inscription.php" method="POST" class="space-y-4">
                         <div>
                             <label for="nom" class="block text-gray-700 font-medium mb-1">Nom</label>
                             <input type="text" name="nom" placeholder="Doe" required
