@@ -63,8 +63,10 @@ $reservations = $reservation->getAllReservation();
             <div class="flex justify-center items-center gap-4">
                 <!-- Logo -->
                 <div class="flex-shrink-0">
-                    <img src="../../images/assad.png" alt="Logo"
+                    <a href="home.php">
+                        <img src="../../images/assad.png" alt="Logo"
                         class="w-20 h-20 object-contain rounded-full border-4 border-white shadow-md">
+                    </a>
                 </div>
 
                 <!-- Title -->
@@ -74,15 +76,11 @@ $reservations = $reservation->getAllReservation();
             </div>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2">
-            <button type="button" onclick="openModalVisiteGuid()" class="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition text-center">
-                Créer Visite Guidée
-            </button>
+            <a href="visiteGuid.php" class="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition text-center">
+                Liste Visites guidées
+            </a>
             <button type="button" onclick="openModalMesReserver()" class="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition text-center">
                 Liste Reservations
-            </button>
-
-            <button type="button" onclick="openParcourModal()" class="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition text-center">
-                Créer visite guidée (parcours)
             </button>
 
 
@@ -166,75 +164,6 @@ $reservations = $reservation->getAllReservation();
             </form>
 
         </div>
-
-
-        <section class="mb-12">
-            <h2 class="text-3xl font-bold mb-6 text-gray-800">Les Visites Guidées</h2>
-
-            <div class="overflow-x-auto bg-white rounded-xl shadow-lg">
-                <table class="min-w-full border border-gray-200">
-                    <!-- Table Head -->
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Id</th>
-                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Titre</th>
-                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Date Heure</th>
-                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Langue</th>
-                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Capacite</th>
-
-                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Durée</th>
-                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Prix</th>
-                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Statut</th>
-                            <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Action</th>
-                        </tr>
-                    </thead>
-
-                    <!-- Table Body -->
-                    <tbody class="divide-y divide-gray-200">
-                        <?php foreach($visiteGuides as $vd) { ?>
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4 text-sm text-gray-700"><?= $vd->id ?></td>
-                                <td class="px-6 py-4 text-sm text-gray-700"><?= $vd->titre ?></td>
-                                <td class="px-6 py-4 text-sm text-gray-700"><?= $vd->dateheure ?></td>
-                                <td class="px-6 py-4 text-sm text-gray-700"><?= $vd->langue?></td>
-                                <td class="px-6 py-4 text-sm text-gray-700"><?= $vd->capacite_max ?></td>
-                                <td class="px-6 py-4 text-sm text-gray-700"><?= $vd->duree ?></td>
-                                <td class="px-6 py-4 text-sm text-gray-700"><?= $vd->prix ?> MAD</td>
-                                <td class="px-6 py-4 text-sm text-gray-700">
-                                    <form action="../../controllers/updateStatutVisitGuid.php" method="POST">
-                                        <input type="hidden" name="id_visiteGuid" value="<?= $vd->id ?>">
-
-                                        <select name="statut"
-                                            onchange="this.form.submit()"
-                                            class="px-3 py-1 rounded-md text-sm font-medium <?= $vd->statut === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
-
-                                            <option value="Active" <?= $vd->statut === 'Active' ? 'selected' : '' ?>>
-                                                Activer
-                                            </option>
-                                            <option value="Inactive" <?= $vd->statut === 'Inactive' ? 'selected' : '' ?>>
-                                                Désactiver
-                                            </option>
-                                        </select>
-                                    </form>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <form action="../../controllers/removeVisitGuid.php" method="POST"
-                                        onsubmit="return confirm('Voulez-vous vraiment supprimer cet visite guidee ?');">
-                                        <input type="hidden" name="id_visitGuid" value="<?= $vd->id ?>">
-                                        <button
-                                            type="submit"
-                                            class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
-                                            Supprimer
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
-            </div>
-
-        </section>
 
 
         <section class="py-10">
@@ -594,19 +523,7 @@ $reservations = $reservation->getAllReservation();
 
 
     <script>
-        function openModalVisiteGuid() {
-            document.getElementById("addVisiteGuid").classList.remove("hidden");
-            document.getElementById("addVisiteGuid").classList.add("block");
-
-
-        }
-
-        function closeModalVisiteGuid() {
-            document.getElementById("addVisiteGuid").classList.remove("block");
-            document.getElementById("addVisiteGuid").classList.add("hidden");
-
-
-        }
+        
 
         function openModalMesReserver() {
 
@@ -619,13 +536,7 @@ $reservations = $reservation->getAllReservation();
             document.getElementById("mesReservation").classList.add("hidden");
         }
 
-        function openParcourModal() {
-            document.getElementById("modalParcourVisite").classList.remove("hidden");
-        }
-
-        function closeParcourModal() {
-            document.getElementById("modalParcourVisite").classList.add("hidden");
-        }
+        
     </script>
 </body>
 
