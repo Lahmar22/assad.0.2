@@ -1,5 +1,6 @@
 <?php
 require_once 'database.php';
+
 class VisitesGuides
 {
     private $titre;
@@ -23,8 +24,7 @@ class VisitesGuides
 
     public function addVisitGuid(VisitesGuides $visitesGuide)
     {
-
-        $sqlVisiteGuid = "INSERT INTO visitesguidees(titre, dateheure, langue, capacite_max, duree, prix) VALUES(?, ?, ?, ?, ?, ?)";
+        $sqlVisiteGuid = 'INSERT INTO visitesguidees(titre, dateheure, langue, capacite_max, duree, prix) VALUES(?, ?, ?, ?, ?, ?)';
 
         $db = Database::connect();
         $stmt = $db->prepare($sqlVisiteGuid);
@@ -42,7 +42,7 @@ class VisitesGuides
     public function removeVisitGuid($id)
     {
         $db = Database::connect();
-        $delete_visitGuid = "DELETE FROM visitesguidees WHERE id = :id";
+        $delete_visitGuid = 'DELETE FROM visitesguidees WHERE id = :id';
 
         $stmt = $db->prepare($delete_visitGuid);
         return $stmt->execute(['id' => $id]);
@@ -51,7 +51,7 @@ class VisitesGuides
     public function getAllVisitesGuides()
     {
         $db = Database::connect();
-        $allVisiteGuides = "SELECT id, titre, dateheure, langue, capacite_max, statut, duree, prix FROM visitesguidees";
+        $allVisiteGuides = 'SELECT id, titre, dateheure, langue, capacite_max, statut, duree, prix FROM visitesguidees';
         $stmt = $db->prepare($allVisiteGuides);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
@@ -60,39 +60,45 @@ class VisitesGuides
     public function getVisitesGuidesRecherche($cherche)
     {
         $db = Database::connect();
-        $allVisiteGuides = "SELECT id, titre, dateheure, langue, capacite_max, statut, duree, prix FROM visitesguidees WHERE titre = :cherche";
+        $allVisiteGuides = 'SELECT id, titre, dateheure, langue, capacite_max, statut, duree, prix FROM visitesguidees WHERE titre = :cherche';
         $stmt = $db->prepare($allVisiteGuides);
         $stmt->execute(['cherche' => $cherche]);
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
-
+    public function getVisiteGuidDejaParcour($id)
+    {
+        $db = Database::connect();
+        $sqlParcour = "SELECT r.id, r.idvisite, r.idutilisateur, v.id AS visite_id, v.titre, v.dateheure,  u.id_user, u.nom, u.prenom 
+        FROM reservations r INNER JOIN visitesguidees v ON r.idvisite = v.id INNER JOIN utilisateur u ON r.idutilisateur = u.id_user WHERE r.idutilisateur = :id AND v.dateheure < NOW() ";
+        $stmt = $db->prepare($sqlParcour);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
 
     public function updateStatutVisitGuid($status, $id)
     {
         $db = Database::connect();
-        $sqlUpdateStatut = "UPDATE visitesguidees SET statut = :status WHERE id = :id";
+        $sqlUpdateStatut = 'UPDATE visitesguidees SET statut = :status WHERE id = :id';
         $stmt = $db->prepare($sqlUpdateStatut);
-        return $stmt->execute(['id'  => $id, 'status' => $status]);
+        return $stmt->execute(['id' => $id, 'status' => $status]);
     }
 
     public function updateCapaciteVisiteGuidResever($nbr, $id)
     {
         $db = Database::connect();
-        $sqlUpdateStatut = "UPDATE visitesguidees SET capacite_max = capacite_max - :nbr WHERE id = :id";
+        $sqlUpdateStatut = 'UPDATE visitesguidees SET capacite_max = capacite_max - :nbr WHERE id = :id';
         $stmt = $db->prepare($sqlUpdateStatut);
-        return $stmt->execute(['nbr'  => $nbr, 'id' => $id]);
+        return $stmt->execute(['nbr' => $nbr, 'id' => $id]);
     }
 
     public function updateCapaciteVisiteGuidAnnuler($nbr, $id)
     {
         $db = Database::connect();
-        $sqlUpdateStatut = "UPDATE visitesguidees SET capacite_max = capacite_max + :nbr WHERE id = :id";
+        $sqlUpdateStatut = 'UPDATE visitesguidees SET capacite_max = capacite_max + :nbr WHERE id = :id';
         $stmt = $db->prepare($sqlUpdateStatut);
-        return $stmt->execute(['nbr'  => $nbr, 'id' => $id]);
+        return $stmt->execute(['nbr' => $nbr, 'id' => $id]);
     }
-
-    
 
     public function getTitre()
     {
@@ -128,7 +134,6 @@ class VisitesGuides
     {
         return $this->prix;
     }
-
 
     public function setTitre($titre)
     {
