@@ -48,10 +48,19 @@ class VisitesGuides
         return $stmt->execute(['id' => $id]);
     }
 
+    public function getAllVisitesGuidesDis()
+    {
+        $db = Database::connect();
+        $allVisiteGuides = "SELECT id, titre, dateheure, langue, capacite_max, statut, duree, prix FROM visitesguidees WHERE statut ='Active' ";
+        $stmt = $db->prepare($allVisiteGuides);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
     public function getAllVisitesGuides()
     {
         $db = Database::connect();
-        $allVisiteGuides = 'SELECT id, titre, dateheure, langue, capacite_max, statut, duree, prix FROM visitesguidees';
+        $allVisiteGuides = "SELECT id, titre, dateheure, langue, capacite_max, statut, duree, prix FROM visitesguidees ";
         $stmt = $db->prepare($allVisiteGuides);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
