@@ -26,6 +26,15 @@ class Habitat
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
+    public function selectNomHabitat() {
+        $db = Database::connect();
+        $sqlNomHabitat = "SELECT nomHabitat FROM habitats";
+        $stmt = $db->prepare($sqlNomHabitat);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        
+    }
+
     public function addHabitat(Habitat $habitat)
     {
         $Add_habitat = "INSERT INTO habitats(nomHabitat, typeclimat, description, zonezoo) VALUES(?, ?, ?, ?)";

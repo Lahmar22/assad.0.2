@@ -2,6 +2,7 @@
 session_start();
 
 require_once '../../Models/animal.php';
+require_once '../../Models/habitat.php';
 require_once '../../Models/visiteGuid.php';
 require_once '../../Models/reservations.php';
 
@@ -11,9 +12,16 @@ if (!isset($_SESSION['id_user'])) {
 }
 
 $nameVisite_guid = $_POST['nameVisite_guid'];
+$filterPaysOrigin = $_POST['filterPaysOrigin'];
+$filter_habitat = $_POST['filter_habitat'];
 
 $animal = new Animal();
 $animals = $animal->getAllAnimaux();
+$animalFilter = $animal->getAnimauxRecherche($filterPaysOrigin, $filter_habitat);
+$PayAnimal = $animal->getPaysOrigin();
+
+$habitat = new Habitat();
+$getNomHabitat =  $habitat->selectNomHabitat();
 
 $visiteGuid = new VisitesGuides();
 $visiteGuides = $visiteGuid->getAllVisitesGuides();
@@ -146,6 +154,9 @@ $reservations = $reservation->getAllReservation($_SESSION['id_user']);
                     <select name="filterPaysOrigin"
                         class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500">
                         <option value="">Tout</option>
+                        <?php foreach($PayAnimal as $pa){ ?>
+                            <option value="<?= $pa->paysorigine ?>"><?= $pa->paysorigine ?></option>
+                        <?php } ?>
 
                     </select>
                 </div>
@@ -158,6 +169,9 @@ $reservations = $reservation->getAllReservation($_SESSION['id_user']);
                     <select name="filter_habitat"
                         class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500">
                         <option value="">Tout</option>
+                        <?php foreach($getNomHabitat as $nh){ ?>
+                            <option value="<?= $nh->nomHabitat ?>"><?= $nh->nomHabitat ?></option>
+                        <?php } ?>
 
                     </select>
                 </div>
@@ -345,7 +359,47 @@ $reservations = $reservation->getAllReservation($_SESSION['id_user']);
             </h1>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
-                <?php foreach ($animals as $a) { ?>
+                <?php if (count($animalFilter) > 0) {
+                    foreach ($animalFilter as $af) { ?>
+                        <div
+                        class="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 transform hover:-translate-y-2">
+
+                        <!-- Image -->
+                        <div class="relative">
+                            <img src="<?= $af->image ?>"
+                                class="w-full h-52 object-cover group-hover:scale-110 transition duration-500">
+
+                            <!-- Gradient overlay -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+
+                            <!-- Animal name on image -->
+                            <h3 class="absolute bottom-3 left-3 text-white text-xl font-bold">
+                                <?= $af->nomAnimal ?>
+                            </h3>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="p-5 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                                    <?= $af->espèce ?>
+                                </span>
+                            </div>
+
+                            <p class="text-gray-600 text-sm">
+                                <span class="font-semibold">Habitat :</span> <?= $af->nomHabitat ?>
+                            </p>
+
+                            <p class="text-gray-600 text-sm">
+                                <span class="font-semibold">Pays d’origine :</span> <?= $af->paysorigine ?>
+                            </p>
+                        </div>
+                    </div>
+                    <?php } ?>
+
+                
+                <?php } else {
+                    foreach ($animals as $a) { ?>
                     <div
                         class="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 transform hover:-translate-y-2">
 
@@ -380,6 +434,7 @@ $reservations = $reservation->getAllReservation($_SESSION['id_user']);
                             </p>
                         </div>
                     </div>
+                <?php } ?>
                 <?php } ?>
             </div>
         </section>

@@ -33,6 +33,26 @@ class Animal
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
+    public function getAnimauxRecherche($filterPaysOrigin, $filter_habitat)
+    {
+        $db = Database::connect();
+        $sqlAnimalFiltre = "SELECT animaux.id, animaux.nomAnimal, animaux.espèce, animaux.alimentation, animaux.image, animaux.paysorigine, animaux.descriptioncourte, habitats.nomHabitat 
+        FROM animaux INNER JOIN habitats ON animaux.id_habitat = habitats.id_habitat  
+        WHERE animaux.paysorigine = :filterPaysOrigin AND habitats.nomHabitat = :filter_habitat ";
+
+        $stmt = $db->prepare($sqlAnimalFiltre);
+        $stmt->execute(['filterPaysOrigin' => $filterPaysOrigin, 'filter_habitat' => $filter_habitat]);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+    public function getPaysOrigin() {
+        $db = Database::connect();
+        $sqlPaysOrigin = "SELECT paysorigine FROM animaux GROUP BY paysorigine";
+        $stmt = $db->prepare($sqlPaysOrigin);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        
+    }
+
     public function addAnimal(Animal $animal)
     {
 
