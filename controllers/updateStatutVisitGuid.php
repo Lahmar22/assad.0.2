@@ -19,10 +19,10 @@ class UpdateStatutVisitGuid
             $visiteGuid->updateStatutVisitGuid($statut, $id);
 
 
-            header("Location: ../Views/guid/home.php?success=1");
+            header("Location: ../Views/guid/visiteGuid.php?success=1");
             exit();
         } catch (PDOException) {
-            header("Location: ../Views/guid/home.php?error=db");
+            header("Location: ../Views/guid/visiteGuid.php?error=db");
             exit();
         }
     }
