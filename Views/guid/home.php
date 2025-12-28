@@ -1,18 +1,32 @@
 <?php
 session_start();
 require_once '../../Models/animal.php';
+require_once '../../Models/habitat.php';
 require_once '../../Models/visiteGuid.php';
+require_once '../../Models/reservations.php';
 
 if (!isset($_SESSION['id_user'])) {
     header("Location: ../../index.php");
     exit();
 }
 
+$filterPaysOrigin = $_POST['filterPaysOrigin'];
+$filter_habitat = $_POST['filter_habitat'];
+
 $animal = new Animal();
 $animals = $animal->getAllAnimaux();
+$PayAnimal = $animal->getPaysOrigin();
+$animalFilter = $animal->getAnimauxRecherche($filterPaysOrigin, $filter_habitat);
+
+$habitat = new Habitat();
+$getNomHabitat =  $habitat->selectNomHabitat();
 
 $visiteGuid = new VisitesGuides();
 $visiteGuides = $visiteGuid->getAllVisitesGuides();
+$visiteGuidesIdTitre = $visiteGuid->getAllVisitesGuides();
+
+$reservation = new Reservations();
+$reservations = $reservation->getAllReservation();
 
 ?>
 
@@ -120,6 +134,9 @@ $visiteGuides = $visiteGuid->getAllVisitesGuides();
                     <select name="filterPaysOrigin"
                         class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500">
                         <option value="">Tout</option>
+                        <?php foreach($PayAnimal as $pa){ ?>
+                            <option value="<?= $pa->paysorigine ?>"><?= $pa->paysorigine ?></option>
+                        <?php } ?>
 
                     </select>
                 </div>
@@ -132,6 +149,9 @@ $visiteGuides = $visiteGuid->getAllVisitesGuides();
                     <select name="filter_habitat"
                         class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500">
                         <option value="">Tout</option>
+                        <?php foreach($getNomHabitat as $nh){ ?>
+                            <option value="<?= $nh->nomHabitat ?>"><?= $nh->nomHabitat ?></option>
+                        <?php } ?>
 
                     </select>
                 </div>
@@ -223,7 +243,47 @@ $visiteGuides = $visiteGuid->getAllVisitesGuides();
             </h1>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
-                <?php foreach ($animals as $a) { ?>
+                <?php if (count($animalFilter) > 0) {
+                    foreach ($animalFilter as $af) { ?>
+                        <div
+                        class="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 transform hover:-translate-y-2">
+
+                        <!-- Image -->
+                        <div class="relative">
+                            <img src="<?= $af->image ?>"
+                                class="w-full h-52 object-cover group-hover:scale-110 transition duration-500">
+
+                            <!-- Gradient overlay -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+
+                            <!-- Animal name on image -->
+                            <h3 class="absolute bottom-3 left-3 text-white text-xl font-bold">
+                                <?= $af->nomAnimal ?>
+                            </h3>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="p-5 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                                    <?= $af->espèce ?>
+                                </span>
+                            </div>
+
+                            <p class="text-gray-600 text-sm">
+                                <span class="font-semibold">Habitat :</span> <?= $af->nomHabitat ?>
+                            </p>
+
+                            <p class="text-gray-600 text-sm">
+                                <span class="font-semibold">Pays d’origine :</span> <?= $af->paysorigine ?>
+                            </p>
+                        </div>
+                    </div>
+                    <?php } ?>
+
+                
+                <?php } else {
+                    foreach ($animals as $a) { ?>
                     <div
                         class="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 transform hover:-translate-y-2">
 
@@ -258,6 +318,7 @@ $visiteGuides = $visiteGuid->getAllVisitesGuides();
                             </p>
                         </div>
                     </div>
+                <?php } ?>
                 <?php } ?>
             </div>
         </section>
@@ -339,6 +400,192 @@ $visiteGuides = $visiteGuid->getAllVisitesGuides();
 
 
             </div>
+        </div>
+    </div>
+
+    <div id="mesReservation"
+        class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl mx-4 relative animate-fade-in">
+
+            <!-- Close Button -->
+            <button onclick="closeModalMesReserver()"
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl">
+                &times;
+            </button>
+
+            <!-- Header -->
+            <div class="border-b px-6 py-4">
+                <h2 class="text-2xl font-bold text-gray-800 text-center">
+                    📋 List Réservations
+                </h2>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 overflow-x-auto max-h-[70vh]">
+
+                <table class="min-w-full text-sm border border-gray-200 rounded-xl overflow-hidden">
+                    <thead class="bg-gray-100 sticky top-0 z-10">
+                        <tr>
+                            <th class="px-4 py-3 text-left font-semibold">Titre</th>
+                            <th class="px-4 py-3 text-left font-semibold">Utilisateur</th>
+                            <th class="px-4 py-3 text-center font-semibold">Personnes</th>
+                            <th class="px-4 py-3 text-center font-semibold">Réservé le</th>
+                            <th class="px-4 py-3 text-center font-semibold">Date visite</th>
+                            <th class="px-4 py-3 text-center font-semibold">Heure</th>
+                            <th class="px-4 py-3 text-center font-semibold">Statut</th>
+                            <th class="px-4 py-3 text-center font-semibold">Durée</th>
+                            <th class="px-4 py-3 text-center font-semibold">Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                        <?php if (count($reservations) > 0) {
+                            foreach ($reservations as $r) { ?>
+                                <tr class="hover:bg-gray-50 transition">
+
+                                    <td class="px-4 py-3 font-medium">
+                                        <?= htmlspecialchars($r->titre) ?>
+                                    </td>
+
+                                    <td class="px-4 py-3">
+                                        <?= htmlspecialchars($r->nom . ' ' . $r->prenom) ?>
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center">
+                                        <?= $r->nbpersonnes ?>
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center">
+                                        <?= $r->datereservation ?>
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center">
+                                        <?= $r->dateVG ?>
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center">
+                                        <?= $r->timeVG ?>
+                                    </td>
+
+                                    <!-- Status Badge -->
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="px-3 py-1 rounded-full text-xs font-semibold
+                                    <?= $r->statut === 'active'
+                                        ? 'bg-green-100 text-green-700'
+                                        : 'bg-yellow-100 text-yellow-700' ?>">
+                                            <?= ucfirst($r->statut) ?>
+                                        </span>
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center">
+                                        <?= $r->duree ?>
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center font-semibold text-green-600">
+                                        <?= $r->prix * $r->nbpersonnes ?> MAD
+                                    </td>
+
+
+
+                                </tr>
+                            <?php }
+                        } else { ?>
+                            <td colspan="10" class=" text-xl px-4 py-3 text-center">🚫 Aucune réservation trouvée</td>
+                        <?php } ?>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="modalParcourVisite"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+
+        <!-- MODAL BOX -->
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 relative">
+
+            <!-- CLOSE BUTTON -->
+            <button onclick="closeParcourModal()"
+                class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl">
+                &times;
+            </button>
+
+            <!-- TITLE -->
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+                Create Guided Visit Route
+            </h2>
+
+            <!-- FORM -->
+            <form action="../../controllers/createParcourVisite.php" method="post" class="space-y-4">
+
+                <!-- TITRE ETAPE -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Étape Title
+                    </label>
+                    <input type="text" name="titreetape" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg
+                           focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+
+                <!-- DESCRIPTION ETAPE -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Step Description
+                    </label>
+                    <textarea name="descriptionetape" rows="3" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg
+                           focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                </div>
+
+                <!-- ORDRE ETAPE -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Step Order
+                    </label>
+                    <input type="number" name="ordreetape" min="1" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg
+                           focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+
+                <!-- ID VISITE -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Select Visit
+                    </label>
+
+                    <select name="id_visite" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg
+               focus:outline-none focus:ring-2 focus:ring-green-500">
+
+                        <option value="">-- Choose a visit --</option>
+
+                        <?php foreach ($visiteGuidesIdTitre as $vit) { ?>
+                            <option value="<?= $vit->id ?>">
+                                <?= $vit->titre ?>
+                            </option>
+                        <?php } ?>
+
+                    </select>
+                </div>
+
+                <!-- ACTION BUTTONS -->
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" onclick="closeParcourModal()"
+                        class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700">
+                        Cancel
+                    </button>
+
+                    <button type="submit"
+                        class="px-5 py-2 rounded-lg bg-green-600 hover:bg-green-700
+                           text-white font-semibold">
+                        Create
+                    </button>
+                </div>
+
+            </form>
         </div>
     </div>
     
