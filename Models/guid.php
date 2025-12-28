@@ -5,29 +5,29 @@ require_once 'database.php';
 class Guid extends User
 { 
     private $role;
-    public function __construct($name, $firstName, $email, $password, $statut, $role)
+    private $statut;
+    public function __construct($name, $firstName, $email, $password, $role, $statut)
     {
-        parent::__construct($name, $firstName, $email, $password, $statut);
+        parent::__construct($name, $firstName, $email, $password);
         $this->role = $role;
+        $this->statut = $statut;
 
     }
 
-    public function addVisitGuid(VisitesGuides $visitesGuides){
-        $reserveVisite = "INSERT INTO visitesguidees (titre, dateheure, langue, capacite_max, statut, duree, prix)
-        VALUES(?, ?, ?, ?, ?, ?, ? )";
+    
 
-        $db = Database::connect();
-        $stmt = $db->prepare($reserveVisite);
-        return $stmt->execute([
-            $visitesGuides->getTitre(),
-            $visitesGuides->getDateheure(),
-            $visitesGuides->getLangue(),
-            $visitesGuides->getCapaciteMax(),
-            $visitesGuides->getStatut(),
-            $visitesGuides->getDuree(),
-            $visitesGuides->getPrix()
-        ]);
-
+    public function getRole(){ 
+        return $this->role;
+    }
+    public function setRole($role){
+        $this->role = $role;
+    }
+    public function getStatut(){
+        return $this->statut;
+    }
+    
+    public function setStatut($statut){
+        $this->statut = $statut;
     }
 
 
