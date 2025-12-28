@@ -31,6 +31,16 @@ class Commentaire
             $commentaire->getDatecommentaire()
         ]);
     }
+    public function getCommentaire($idVisiteGuid)
+    {
+        $db = Database::connect();
+        $allComentaire = "SELECT c.id, c.idvisitesguides, c.idutilisateur, c.note, c.texte, c.date_commentaire, v.id, u.id_user, u.nom, u.prenom FROM commentaires c 
+        INNER JOIN visitesguidees v ON c.idvisitesguides = v.id 
+        INNER JOIN utilisateur u ON c.idutilisateur = u.id_user WHERE v.id = :idVisiteGuid ";
+        $stmt = $db->prepare($allComentaire);
+        $stmt->execute(['idVisiteGuid' => $idVisiteGuid]);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
 
     public function getIdvisitesguides() {
         return $this->idvisitesguides;
