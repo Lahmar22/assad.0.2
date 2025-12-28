@@ -24,7 +24,7 @@ $habitat = new Habitat();
 $getNomHabitat = $habitat->selectNomHabitat();
 
 $visiteGuid = new VisitesGuides();
-$visiteGuides = $visiteGuid->getAllVisitesGuides();
+$visiteGuides = $visiteGuid->getAllVisitesGuidesDis();
 $visiteGuidRecherche = $visiteGuid->getVisitesGuidesRecherche($nameVisite_guid);
 $visitGuidDejaParcour = $visiteGuid->getVisiteGuidDejaParcour($_SESSION['id_user']);
 
